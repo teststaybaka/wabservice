@@ -1,0 +1,28 @@
+div.entry {
+    padding-top: 20px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+div.challenger-name {
+    width: 20%;
+    text-align: center;
+    display: inline-block;
+}
+
+div.link {
+    width: 40%;
+    text-align: center;
+    display: inline-block;
+}
+
+div.decision {
+    width: 20%;
+    text-align: center;
+    display: inline-block;
+}
+
+button {
+    margin-left: 20px;
+}

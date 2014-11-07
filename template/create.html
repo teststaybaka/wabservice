@@ -1,0 +1,36 @@
+{% extends "template/index.html" %}
+{% block head %}
+{{ super() }}
+<link href="/static/create.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block challenge %}
+<div id="create-container" class="container">
+    <form action="{{ uri_for('create') }}" method="post">
+        <div class="input title" id="input-title-div">
+            <p>What's the title of your challenge?</p>
+            <input class="text" name="title" id="input-title" autofocus type="text" tabindex="1" />
+        </div>
+        <div class="input summary" id="input-summary-div">
+            <p>Please briefly describe your challenge.</p>
+            <input class="text" name="summary" id="input-summary" type="text" tabindex="2"/>
+        </div>
+        <div class="input content" id="input-content-div">
+            <p>Please give a detailed description of your challenge.</p>
+            <textarea class="text" name="content" id="input-content" tabindex="3">What's for, how to complete, why it's interesting, time limit, etc.</textarea>
+        </div>
+        <div class="input veri_method" id="input-veri_method-div">
+            <p>How to verify someone's completion?</p>
+            <select name="veri_method" id="input-veri_method" tabindex="4">
+                <option value"video">Video</option>
+                <option value="image">Image</option>
+                <option value="both">Both</option>
+            </select>
+        </div>
+        <div class="input category" id="input-category-div">
+            <p>What kind of challenge?</p>
+            <input class="text" name="category" id="input-category" type="text" tabindex="5"/>
+        </div>
+    </form>
+</div>
+{% endblock %}

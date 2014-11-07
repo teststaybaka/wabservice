@@ -1,0 +1,33 @@
+#create-container {
+    width: 70%;
+}
+
+div.input {
+    padding-left: 10px;
+}
+
+input.text {
+    width: 50%;
+}
+
+#search-field {
+    width: auto;
+}
+
+textarea {
+    width: 80%;
+    height: 300px;
+}
+
+select, option {
+    padding: 3px;
+    outline: none;
+    border-radius: 5px;
+}
+
+p {
+    margin: 0;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    line-height: 23px;
+}

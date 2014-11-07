@@ -1,0 +1,41 @@
+#sign-in-container, #sign-up-container {
+    width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 80px;
+    border: 1px solid rgb(200,200,200);
+    border-radius: 5px;
+}
+
+#form-header {
+    height: 20px;
+    background-color: rgb(180,180,230);
+    font-weight: bold;
+    color: white;
+    padding: 10px;
+    font-size: 18px;
+}
+
+#form-body {
+    padding-left: 20px;
+}
+
+div.label {
+    font-family:"Times New Roman", Times, serif;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+input.text {
+    margin-bottom: 10px;
+    width: 88%;
+}
+
+#button-signin, #button-signup {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    width: auto;
+}

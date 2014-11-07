@@ -1,0 +1,37 @@
+{% extends "template/base.html" %}
+{% block head %}
+{{ super() }}
+<link href="/static/index.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block body %}
+<div id="body-container" class="container">
+    <div id="present-category-and-search" class="container">
+        <div id="present-category">
+            Now at >> {{ now_category }}
+        </div>
+        <div id="search-box">
+            <input class="text" id="search-field" type="text"/>
+            <button class="search" id="search-button">Search</button>
+        </div>
+    </div>
+    {% block challenge %}
+    <div id="category-list">
+        <div>All Categories:</div>
+        <ul>
+        {% for category in category_list %}
+            <li class="per-category">{{ category }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div id="challenge-list">
+    {% for challenge in challenge_list %}
+        <li class="per-challenge">
+            <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}">{{ challenge.title }}</a>
+            <span class="challenge-summary">{{ challenge.summary }}</span>
+        </li>
+    {% endfor %}
+    </div>
+    {% endblock %}
+</div>
+{% endblock %}

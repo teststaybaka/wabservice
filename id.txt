@@ -1,0 +1,4 @@
+marine-clarity-742
+http://marine-clarity-742.appspot.com/
+local startup: dev_appserver.py wabservice
+remote deploy: appcfg.py -A marine-clarity-742 update wabservice

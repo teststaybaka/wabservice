@@ -1,0 +1,92 @@
+#body-container {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;   
+    margin-bottom: 50px;
+}
+
+#present-category-and-search {
+    padding: 20px 10px;
+    border-bottom: 1px solid rgb(200,200,200);
+    font-size: 15px;
+}
+
+#present-category {
+    float: left;
+    padding: 6px 10px;
+}
+
+#search-box {
+    float: right;
+}
+
+#search-field {
+    display: inline-block;
+}
+
+#search-button {
+    margin-left: 10px;
+}
+
+#category-list {
+    float: left;
+    margin-top: 30px;
+    margin-left: 20px;
+    width: 20%;
+}
+
+#category-list div {
+    padding-left: 20px;
+}
+
+#category-list ul {
+    display: block;
+    padding: 0;
+    border-right: 1px solid rgb(200,200,200);
+    border-left: 1px solid rgb(200,200,200);
+    border-top: 1px solid rgb(200,200,200);
+}
+
+#category-list ul li {
+    display: block;
+    padding: 20px 30px;
+    font-size: 14px;
+    border-bottom: 1px solid rgb(200,200,200);
+    font-weight: bold;
+}
+
+@-webkit-keyframes 'float-color' {
+    0% { background-color: rgb(255,255,255); }
+    100% { background-color: rgb(240,240,240); }
+}
+
+#category-list ul li:hover {
+    -webkit-animation: float-color 0.5s;
+    position: relative;
+    background-color: rgb(240,240,240);
+}
+
+#challenge-list {
+    float: left;
+    margin-top: 50px;
+    margin-left: 50px;
+    width: 70%;
+}
+
+#challenge-list li {
+    display: block;
+    border: 1px solid rgb(200,200,200);
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+#challenge-list li a {
+    display: block;
+    padding-top: 10px;
+    padding-left: 20px;
+}
+
+#challenge-list li span {
+    display: block;
+    padding: 10px 20px;
+}

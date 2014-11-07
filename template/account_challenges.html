@@ -1,0 +1,7 @@
+{% for challenge in challenge_list %}
+<div class="challenge-entry">
+    <div class="challenge-title">{{ challenge.title }}</div>
+    <div class="challenge-summary">{{ challenge.summary }}</div>
+    <div class="relationship">{{ challenge.relationship }}</div>
+</div>
+{% endfor %}

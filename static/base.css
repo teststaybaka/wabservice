@@ -1,0 +1,104 @@
+body {
+    margin: 0px;
+    padding: 0px;
+    font-family:Georgia,Serif,"Times New Roman";
+}
+
+a {
+    text-decoration: none;
+    color: rgb(0,0,0);
+    font-size: 13px;
+    padding: 4px;
+    font-weight: bold;
+}
+
+a:hover {
+    color: rgb(0,180,255);
+}
+
+div.container:after {
+    clear: both;
+    display: table;
+    content: "";
+}
+
+button, input.button {
+    display: inline-block;
+    padding: 6px 10px;
+    border: 1px solid rgb(200,200,200);
+    border-radius: 5px;
+    background-color: rgb(250,250,250);
+    cursor: pointer;
+    font-family:Georgia,Serif,"Times New Roman";
+    outline: none;
+}
+
+button:hover, input.button:hover {
+    box-shadow: 0 0 5px rgb(81,203,238);
+    border: 1px solid rgb(81,203,238);
+}
+
+button:active, input.button:active {
+    background-color:rgb(230,255,255);
+}
+
+input.text, textarea {
+    border: 1px solid rgb(200,200,200);
+    border-radius: 5px;
+    padding: 5px;
+    outline: none;
+}
+
+input.text:focus, textarea:focus {
+    box-shadow: 0 0 5px rgb(81,203,238);
+    border: 1px solid rgb(81,203,238);
+}
+
+#navigation-bar-background {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 100%;
+    background-color: rgb(245,245,245);
+    border-bottom: 1px solid rgb(200,200,200);
+}
+
+#navigation-bar {
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#home-link, #create-link{
+    margin-left: 10px;
+    float: left;
+}
+
+a.user-info {
+    margin-right: 10px;
+    display: inline-block;
+    float: right;
+}
+
+@-webkit-keyframes 'arise' {
+    0% { bottom: -200px; }
+    100% { bottom: 0px; }
+}
+
+#bottom-dialog {
+    -webkit-animation: arise 1s ease 1;
+    width: 100%;
+    padding-top: 5px;
+    padding-left: 20px;
+    min-height: 20px;
+    left: -1px;
+    bottom: 0px;
+    position: fixed;
+    background-color: rgba(163,255,163,0.5);
+    border: 1px solid #C0C0C0;
+    z-index: 1;
+    font-size: 13px;
+}
+
+#bottom-dialog.warning {
+    background-color: rgba(255,63,63,0.5);
+}

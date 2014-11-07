@@ -1,0 +1,22 @@
+{% extends "template/base.html" %}
+{% block head %}
+{{ super() }}
+<link href="/static/account.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block body %}
+<div class="container" id="body-container">
+    <div id="side-navigation-bar">
+        <div class="nav-button" id="Profile">Profile</div>
+        <div class="nav-button" id="Settings">Settings</div>
+        <div class="nav-button" id="All-Related">All Related</div>
+        <div class="nav-button" id="Created">Created</div>
+        <div class="nav-button" id="Completed">Completed</div>
+        <div class="nav-button" id="Ongoing">Ongoing</div>
+        <div class="nav-button" id="Inbox">Inbox</div>
+    </div>
+    <div id="account-dynamic-column">
+        
+    </div>
+</div>
+{% endblock %}

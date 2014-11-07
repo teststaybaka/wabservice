@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    {% block head %}
+        <title>Take your challenge!</title>
+        <link href="/static/base.css" rel="stylesheet" type="text/css">
+        <script src="/static/base.js" language="JavaScript" type="text/javascript"></script>
+    {% endblock %}
+    </head>
+    <body>
+    {% block navigation %}
+    <div id="navigation-bar-background">
+        <div id="navigation-bar" class="container">
+            <a href="{{ uri_for('home') }}" id="home-link">WabService</a>
+            <a href="{{ uri_for('create') }}" id="create-link">Create Challenge</a>
+
+            {% if username %}
+            <a href="{{ uri_for('account') }}" id="username-link" class="user-info">{{ username }}</a>
+            <a href="{{ uri_for('inbox') }}" id="inbox-link" class="user-info">inbox</a>
+            <a href="{{ uri_for('history') }}" id="history-link" class="user-info">history</a>
+            <a href="{{ uri_for('logout') }}" id="logout-link" class="user-info">Log out</a>
+            {% else %}
+            <a href="{{ uri_for('signup') }}" id="signup-link" class="user-info">Sign up</a>
+            <a href="{{ uri_for('signin') }}" id="signin-link" class="user-info">Sign in</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block body %}
+    {% endblock %}
+
+    {% block dialog %}
+    <div id="bottom-dialog" class="dialog {{ warning }}">
+        {{ dialog }}
+    </div>
+    {% endblock %}
+    </body>
+</html>

@@ -1,0 +1,27 @@
+{% extends "template/detail.html" %}
+{% block head %}
+{{ super() }}
+<link href="/static/completions.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block challenge_body %}
+<div id="completion-list">
+    <div class="entry">
+        <div class="challenger-name">Challenger</div>
+        <div class="link">Feat</div>
+        {% if creator %}
+        <div class="decision">Decision</div>
+        {% endif %}
+    </div>
+    {% for entry in completion_list %}
+    <div class="entry">
+        <div class="challenger-name">{{ entry.name }}</div>
+        <div class="link"><a href="{{ uri_for('file_path', file_id=entry.id }}">{{ entry.file_name }}</a></div>
+        {% if creator %}
+        <button class="confirm">Confirm</button>
+        <button class="not-confirm">Try again</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

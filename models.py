@@ -27,8 +27,8 @@ class Challenge(db.Model):
     accept_counts = db.IntegerProperty()
 
 class UserChallenge(db.Model):
-    user = db.ReferenceProperty(User, required=True, collection_name='users')
-    challenge = db.ReferenceProperty(Challenge, required=True, collection_name='challenges')
+    user = db.ReferenceProperty(User, required=True, collection_name='challenges')
+    challenge = db.ReferenceProperty(Challenge, required=True, collection_name='users')
     relationship = db.StringProperty(required=True, choices=challenge_user_relationships)
     file_name = db.StringProperty()
     file_entity = db.BlobProperty()

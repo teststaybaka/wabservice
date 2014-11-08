@@ -43,10 +43,12 @@ function statusChangeCallback(response) {
         bar.appendChild(uname);
       }
     });
+  } else {
+    console.log('logout!');
   }
 }
 
-function load_cookie() {
+function load_page() {
   window.location.reload();
 }
 
@@ -67,7 +69,6 @@ window.fbAsyncInit = function() {
   FB.getLoginStatus(function(response) {
     statusChangeCallback(response);
   });
-
 };
 
 (function(d, s, id){

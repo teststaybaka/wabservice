@@ -47,10 +47,10 @@ class TestFacebook(BaseHandler):
 
 class Account(BaseHandler):
     def get(self):
-        if self.current_user:
-            current_user=self.current_user
+        current_user = self.current_user
+        if current_user:
             context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.'}
-            template = env.get_template('template/account.html')
+            template = env.get_template('template/account_base.html')
             self.response.write(template.render(context))
         else:
             self.redirect(webapp2.uri_for('home'))
@@ -60,7 +60,18 @@ class Inbox(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
 
-class History(webapp2.RequestHandler):
+class History(BaseHandler):
     def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+        current_user = self.current_user
+        if current_user:
+            user = User.get_by_key_name(current_user.get("id"))
+            logging.info(user.name)
+            challenge_list = []
+            for userChallenge in user.challenges:
+                challenge_list.append(userChallenge.challenge)
+
+            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.', 'challenge_list':challenge_list}
+            template = env.get_template('template/account_history.html')
+            self.response.write(template.render(context))
+        else:
+            self.redirect(webapp2.uri_for('home'))

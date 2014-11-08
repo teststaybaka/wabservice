@@ -3,9 +3,10 @@ import views, account
 
 
 config = {}
-config['webapp2_extras.sessions'] = dict(secret_key='efrghtrrouhsmvnmxdiosjdoifds68_=iooijgrdxuihbvc97yutcivbhugd479k', session_max_age=5)
+config['webapp2_extras.sessions'] = dict(secret_key='efrghtrrouhsmvnmxdiosjdoifds68_=iooijgrdxuihbvc97yutcivbhugd479k')#, session_max_age=5)
 application = webapp2.WSGIApplication([
     webapp2.Route(r'/', views.Home, name='home'),
+    webapp2.Route(r'/home/<status:\d+>', views.Home, name='home_info', handler_method='home_info'),
     webapp2.Route(r'/account', account.Account, name='account'),
     webapp2.Route(r'/inbox', account.Inbox, name='inbox'),
     webapp2.Route(r'/history', account.History, name='history'),

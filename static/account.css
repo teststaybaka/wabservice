@@ -6,7 +6,7 @@
 }
 
 #side-navigation-bar {
-    margin-top: 20px;
+    margin-top: 50px;
     margin-left: 20px;
     float: left;
     border: 1px solid rgb(200,200,200);
@@ -16,4 +16,29 @@
 
 div.nav-button {
     margin: 20px;
+}
+
+#account-dynamic-column {
+    margin-top: 50px;
+    margin-left: 50px;
+    float: left;
+    width: 70%;
+}
+
+#account-dynamic-column div {
+    margin-bottom: 20px;
+    border: 1px solid rgb(200,200,200);
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgb(0,0,0);
+}
+
+#account-dynamic-column div a {
+    display: block;
+    padding-top: 10px;
+    padding-left: 20px;
+}
+
+#account-dynamic-column div span{
+    display: block;
+    padding: 10px 20px;
 }

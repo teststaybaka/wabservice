@@ -73,7 +73,7 @@ input.text:focus, textarea:focus {
     float: left;
 }
 
-a.user-info {
+div.user-info, a.user-info {
     margin-right: 10px;
     display: inline-block;
     float: right;

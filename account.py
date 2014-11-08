@@ -1,38 +1,59 @@
-import cgi
-import urllib
-import logging
-from google.appengine.ext import db
-import webapp2
-import jinja2
+from views import *
 
-from models import *
-from views import env
-
-class Signin(webapp2.RequestHandler):
+class TestFacebook(BaseHandler):
     def get(self):
-        context = {'dialog': 'Do you have an account?'}
-        template = env.get_template('template/signin.html')
+        logging.info(self.current_user)
+        context = {}
+        template = env.get_template('template/facebook_login_test.html')
         self.response.write(template.render(context))
+        # if self.session.get("user"):
+        #     self.response.headers['Content-Type'] = 'text/plain'
+        #     self.response.write(self.session.get("user").get("name")+" "+self.session.get("user").get("id"))
+        #     logging.info(self.session.get("user"))
+        # else:
+        #     cookie = facebook.get_user_from_cookie(self.request.cookies,
+        #                                            FACEBOOK_APP_ID,
+        #                                            FACEBOOK_APP_SECRET)
+        #     logging.info(cookie)
+        #     if cookie:
+        #         # user = User.get_by_key_name(cookie["uid"])
+        #         # self.session["user"] = dict(
+        #         #     name=user.name,
+        #         #     profile_url=user.profile_url,
+        #         #     id=user.id,
+        #         #     access_token=user.access_token)
+        #         # logging.info("logged in");
+        #         graph = facebook.GraphAPI(cookie["access_token"])
+        #         profile = graph.get_object("me")
+        #         self.session["user"] = dict(
+        #             key_name=str(profile["id"]),
+        #             id=str(profile["id"]),
+        #             name=profile["name"],
+        #             profile_url=profile["link"],
+        #             access_token=cookie["access_token"]
+        #         )
+        #         logging.info(self.session.get("user"))
+        #     else:
+        #         context = {}
+        #         template = env.get_template('template/facebook_login_test.html')
+        #         self.response.write(template.render(context))
+        # if self.session.get("user"):
+        #     self.response.headers['Content-Type'] = 'text/plain'
+        #     self.response.write(self.session.get("user"))
+        # else:
+        #     self.response.headers['Content-Type'] = 'text/plain'
+        #     self.response.write('hellow')
+        #     self.session["user"] = 'this is a user'
 
-    # def post(self):
-
-class Signup(webapp2.RequestHandler):
+class Account(BaseHandler):
     def get(self):
-        context = {'dialog': 'Do you have an account?'}
-        template = env.get_template('template/signup.html')
-        self.response.write(template.render(context))
-
-    # def post(self):
-
-class Logout(webapp2.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class Account(webapp2.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+        if self.current_user:
+            current_user=self.current_user
+            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.'}
+            template = env.get_template('template/account.html')
+            self.response.write(template.render(context))
+        else:
+            self.redirect(webapp2.uri_for('home'))
 
 class Inbox(webapp2.RequestHandler):
     def get(self):

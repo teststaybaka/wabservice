@@ -1,0 +1,49 @@
+{% extends "template/index.html" %}
+{% block head %}
+{{ super() }}
+<link href="/static/create.css" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block challenge %}
+<div id="create-container" class="container">
+    <form action="{{ uri_for('edit', challenge_id=challenge.challenge_id) }}" method="post">
+        <div class="input title" id="input-title-div">
+            <p>What's the title of your challenge?</p>
+            <input class="text" name="title" id="input-title" autofocus type="text" tabindex="1" value="{{ challenge.title }}"/>
+        </div>
+        <div class="input summary" id="input-summary-div">
+            <p>Please briefly describe your challenge.</p>
+            <input class="text" name="summary" id="input-summary" type="text" tabindex="2" value="{{ challenge.summary }}"/>
+        </div>
+        <div class="input content" id="input-content-div">
+            <p>Please give a detailed description of your challenge.</p>
+            <textarea class="text" name="content" id="input-content" tabindex="3">{{ challenge.content }}</textarea>
+        </div>
+        <div class="input veri_method" id="input-veri_method-div">
+            <p>How to verify someone's completion?</p>
+            <select name="veri_method" id="input-veri_method" tabindex="4">
+                {% if challenge.veri_method == "video" %}
+                    <option value"video" selected>video</option>
+                    <option value="image">image</option>
+                    <option value="both">both</option>
+                {% elif challenge.veri_method == "image" %}
+                    <option value"video">video</option>
+                    <option value="image" selected>image</option>
+                    <option value="both">both</option>
+                {% else %}
+                    <option value"video">video</option>
+                    <option value="image">image</option>
+                    <option value="both" selected>both</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="input category" id="input-category-div">
+            <p>What kind of challenge?</p>
+            <input class="text" name="category" id="input-category" type="text" tabindex="5" value="{{ challenge.category[0] }}"/>
+        </div>
+        <div>
+            <input type="submit" value="Update">
+        </div>
+    </form>
+</div>
+{% endblock %}

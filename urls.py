@@ -20,7 +20,8 @@ application = webapp2.WSGIApplication([
 
     webapp2.Route(r'/invite', challenge.Invite, name='invite'),
     webapp2.Route(r'/create', challenge.Create, name='create'),
-    
+    webapp2.Route(r'/challenge/<challenge_id:\d+>/edit', challenge.Edit, name='edit'),
+
     webapp2.Route(r'/challenge/<challenge_id:\d+>/accept', challenge.Accept, name='accept'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/reject', challenge.Reject, name='reject'),
 

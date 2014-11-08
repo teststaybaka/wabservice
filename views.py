@@ -4,15 +4,11 @@ import os
 import logging
 import jinja2
 import webapp2
-import facebook
-from webapp2_extras import sessions
 from jinja2 import Undefined
 from google.appengine.ext import db
 
 from models import *
 
-FACEBOOK_APP_ID = '797761393603664'
-FACEBOOK_APP_SECRET = 'd95c7c45b86a757f44b7c4991a0b7f47'
 
 class SilentUndefined(Undefined):
     '''
@@ -31,90 +27,25 @@ env.globals = {
     'uri_for': webapp2.uri_for,
 }
 
-class BaseHandler(webapp2.RequestHandler):
-    @property
-    def current_user(self):
-        if self.session.get("user"):
-            # User is logged in
-            return self.session.get("user")
-        else:
-            # Either used just logged in or just saw the first page or session expired
-            # We'll see here
-            cookie = facebook.get_user_from_cookie(self.request.cookies,
-                                                   FACEBOOK_APP_ID,
-                                                   FACEBOOK_APP_SECRET)
-            logging.info(cookie)
-            if cookie:
-                # Okay so user logged in.
-                # Now, check to see if existing user
-                user = User.get_by_key_name(cookie["uid"])
-                if not user:
-                    # Not an existing user so get user info
-                    graph = facebook.GraphAPI(cookie["access_token"])
-                    profile = graph.get_object("me")
-                    user = User(
-                        key_name=str(profile["id"]),
-                        id=str(profile["id"]),
-                        name=profile["name"],
-                        profile_url=profile["link"],
-                        access_token=cookie["access_token"]
-                    )
-                    user.put()
-                elif user.access_token != cookie["access_token"]:
-                    user.access_token = cookie["access_token"]
-                    user.put()
-                # User is now logged in
-                self.session["user"] = dict(
-                    name=user.name,
-                    profile_url=user.profile_url,
-                    id=user.id,
-                    access_token=user.access_token
-                )
-                return self.session.get("user")
-        return None
+class Home(webapp2.RequestHandler):
+    # def one_time_runing(self, challenge_ID_Factory):
+    #     challenge_ID_Factory = Challenge_ID_Factory(id_counter=0);
+    #     challenge_ID_Factory.put();
 
-    def dispatch(self):
-        """
-        This snippet of code is taken from the webapp2 framework documentation.
-        See more at
-        http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
+    #     query = db.GqlQuery("select * from Challenge")
+    #     for entry in query.run():
+    #         entry.delete()
 
-        """
-        self.session_store = sessions.get_store(request=self.request)
-        try:
-            webapp2.RequestHandler.dispatch(self)
-        finally:
-            self.session_store.save_sessions(self.response)
-
-    @webapp2.cached_property
-    def session(self):
-        """
-        This snippet of code is taken from the webapp2 framework documentation.
-        See more at
-        http://webapp-improved.appspot.com/api/webapp2_extras/sessions.html
-
-        """
-        return self.session_store.get_session()
-
-class Home(BaseHandler):
-    def one_time_runing(self, challenge_ID_Factory):
-        challenge_ID_Factory = Challenge_ID_Factory(id_counter=0);
-        challenge_ID_Factory.put();
-
-        query = db.GqlQuery("select * from Challenge")
-        for entry in query.run():
-            entry.delete()
-
-        challenge1 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
-            title='new challenge', summary="It's great", content='try it out!',
-            state='ongoing', veri_method='image');
-        challenge1.category.append(available_category_list[0]);
-        challenge1.put();
-        challenge2 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
-            title='Another one?', summary="It's great", content='really!',
-            state='closed', veri_method='both');
-        challenge2.category.append(available_category_list[3]);
-        challenge2.put();
+    #     challenge1 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
+    #         title='new challenge', summary="It's great", content='try it out!',
+    #         state='ongoing', veri_method='image');
+    #     challenge1.category.append(available_category_list[0]);
+    #     challenge1.put();
+    #     challenge2 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
+    #         title='Another one?', summary="It's great", content='really!',
+    #         state='closed', veri_method='both');
+    #     challenge2.category.append(available_category_list[3]);
+    #     challenge2.put();
 
     def get_id_factory(self):
         query = db.GqlQuery("select * from Challenge_ID_Factory")

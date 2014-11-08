@@ -33,7 +33,7 @@ class UserChallenge(db.Model):
     file_name = db.StringProperty()
     file_entity = db.BlobProperty()
 
-class Message(db.Model):
+class Message(object):
     message_title = db.StringProperty(required=True)
     message_content = db.StringProperty(required=True)
 

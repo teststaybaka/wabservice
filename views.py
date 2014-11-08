@@ -9,6 +9,7 @@ from google.appengine.ext import db
 
 from models import *
 
+from webapp2_extras import sessions
 
 class SilentUndefined(Undefined):
     '''
@@ -36,12 +37,12 @@ class Home(webapp2.RequestHandler):
         for entry in query.run():
             entry.delete()
 
-        challenge1 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
+        challenge1 = Challenge(challenge_id=challenge_ID_Factory.get_id(), creator_id='testuserid1',
             title='new challenge', summary="It's great", content='try it out!',
             state='ongoing', veri_method='image');
         challenge1.category.append(available_category_list[0]);
         challenge1.put();
-        challenge2 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
+        challenge2 = Challenge(challenge_id=challenge_ID_Factory.get_id(), creator_id='testuserid2',
             title='Another one?', summary="It's great", content='really!',
             state='closed', veri_method='both');
         challenge2.category.append(available_category_list[3]);
@@ -53,8 +54,9 @@ class Home(webapp2.RequestHandler):
             return entry
 
     def get(self):
+        # logging.info(self.request)
         challenge_ID_Factory = self.get_id_factory();
-        # logging.info("id counter: %d", challenge_ID_Factory.id_counter);
+        logging.info("id counter: %d", challenge_ID_Factory.id_counter);
         # self.one_time_runing(challenge_ID_Factory)
 
         now_category = 'for fun'

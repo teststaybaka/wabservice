@@ -17,7 +17,7 @@ class User(db.Model):
 class Challenge(db.Model):
     challenge_id = db.IntegerProperty(required=True)
     # creator = db.ReferenceProperty(User, required=True, collection_name='users')
-    creator_id = db.IntegerProperty(required=True)
+    creator_id = db.StringProperty(required=True)
     title = db.StringProperty(required=True)
     summary = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
@@ -29,7 +29,7 @@ class Challenge(db.Model):
 
 class ChallengeRequest(db.Model):
     inviter_id = db.StringProperty(required=True)
-    challenge_id = db.StringProperty(required=True)
+    challenge_id = db.IntegerProperty(required=True)
     invitee_id = db.StringProperty(required=True)
     status = db.StringProperty(required=True, choices=['pending', 'accepted', 'rejected', 'verifying', 'verified', 'completed'])
     file_name = db.StringProperty()

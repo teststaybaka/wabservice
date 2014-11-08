@@ -3,7 +3,6 @@ from google.appengine.ext import blobstore
 
 available_category_list = ['Public', 'Closed', 'Charity', 'For fun']
 challenges_states = ['ongoing', 'closed']
-challenge_user_relationships = ['creator', 'accepted', 'invited', 'rejected', 'verifying', 'upon_completed']
 verification_methods = ['video', 'image', 'both']
 
 class User(db.Model):
@@ -17,6 +16,8 @@ class User(db.Model):
 
 class Challenge(db.Model):
     challenge_id = db.IntegerProperty(required=True)
+    # creator = db.ReferenceProperty(User, required=True, collection_name='users')
+    creator_id = db.IntegerProperty(required=True)
     title = db.StringProperty(required=True)
     summary = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
@@ -26,10 +27,11 @@ class Challenge(db.Model):
     completion_counts = db.IntegerProperty()
     accept_counts = db.IntegerProperty()
 
-class UserChallenge(db.Model):
-    user = db.ReferenceProperty(User, required=True, collection_name='users')
-    challenge = db.ReferenceProperty(Challenge, required=True, collection_name='challenges')
-    relationship = db.StringProperty(required=True, choices=challenge_user_relationships)
+class ChallengeRequest(db.Model):
+    inviter_id = db.StringProperty(required=True)
+    challenge_id = db.StringProperty(required=True)
+    invitee_id = db.StringProperty(required=True)
+    status = db.StringProperty(required=True, choices=['pending', 'accepted', 'rejected', 'verifying', 'verified', 'completed'])
     file_name = db.StringProperty()
     file_entity = db.BlobProperty()
 

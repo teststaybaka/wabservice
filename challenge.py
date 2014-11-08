@@ -103,15 +103,35 @@ class Invite(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
 
+class Requests(BaseHandler):
+    def get(self):
+        if self.session.get('id'):
+            query = db.GqlQuery("select * from ChallengeRequest where invitee_id = :1", self.session['id'])
+            requests = query.fetch(None)
+            if len(requests) == 0:
+                sampleRequest = ChallengeRequest(inviter_id = 'testuserid1', challenge_id = 1, invitee_id = 'testuserid1', status = 'pending')
+                sampleRequest.put()
+            else:
+                context = { 'requests' : requests }
+
+            template = env.get_template('template/requests.html')
+            self.response.write(template.render(context))
+        else:
+            self.response.write('Please login first! <a href="/">Home</a>')
+
 class Accept(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+    def get(self, request_id):
+        request = ChallengeRequest.get_by_id(long(request_id))
+        request.status = 'accepted'
+        request.put()
+        self.redirect_to('requests')
 
 class Reject(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+    def get(self, request_id):
+        request = ChallengeRequest.get_by_id(long(request_id))
+        request.status = 'rejected'
+        request.put()
+        self.redirect_to('requests')
 
 class Upload(webapp2.RequestHandler):
     def post(self, challenge_id):

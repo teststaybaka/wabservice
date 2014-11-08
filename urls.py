@@ -22,8 +22,9 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/create', challenge.Create, name='create'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/edit', challenge.Edit, name='edit'),
 
-    webapp2.Route(r'/challenge/<challenge_id:\d+>/accept', challenge.Accept, name='accept'),
-    webapp2.Route(r'/challenge/<challenge_id:\d+>/reject', challenge.Reject, name='reject'),
+    webapp2.Route(r'/requests', challenge.Requests, name='requests'),
+    webapp2.Route(r'/requests/<request_id:\d+>/accept', challenge.Accept, name='accept'),
+    webapp2.Route(r'/requests/<request_id:\d+>/reject', challenge.Reject, name='reject'),
 
     webapp2.Route(r'/challenge/<challenge_id:\d+>/upload', challenge.Upload, name='upload'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/confirm', challenge.Verify, name='confirm'),

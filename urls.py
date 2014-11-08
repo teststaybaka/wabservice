@@ -1,8 +1,15 @@
 import webapp2
 import views, account, challenge
 
+# config for session key, create config.py for configurations
+config = {}
+config['webapp2_extras.sessions'] = {
+    'secret_key': 'some-secret-key',
+}
 application = webapp2.WSGIApplication([
     webapp2.Route(r'/', views.Home, name='home'),
+    webapp2.Route(r'/testsignin', views.TestSignin, name='testsignin'),
+    webapp2.Route(r'/testlogout', views.TestLogout, name='testlogout'),
     webapp2.Route(r'/signin', account.Signin, name='signin'),
     webapp2.Route(r'/signup', account.Signup, name='signup'),
     webapp2.Route(r'/logout', account.Logout, name='logout'),
@@ -26,4 +33,4 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/challenge/<challenge_id:\d+>/discussions', views.Discussions, name='discussions'),
 
     webapp2.Route(r'/file/<file_id:\d+>', views.ServeFile, name='serve_file')
-], debug=True)
+], debug=True, config=config)

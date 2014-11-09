@@ -127,7 +127,6 @@ class Home(BaseHandler):
     def get(self):
         challenge_ID_Factory = self.get_id_factory();
         # logging.info("id counter: %d", challenge_ID_Factory.id_counter);
-        # self.one_time_runing(challenge_ID_Factory)
 
         now_category = 'for fun'
         category_list = available_category_list
@@ -194,28 +193,7 @@ class Discussions(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
 
-class Upload(webapp2.RequestHandler):
-    def post(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class Confirm(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
 class ServeFile(webapp2.RequestHandler):
     def get(self, file_id):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
-
-class Create(BaseHandler):
-    def get(self):
-        if self.current_user:
-            context = {'dialog': 'You got a good idea?', 'now_category': 'create'}
-            template = env.get_template('template/create.html')
-            self.response.write(template.render(context))
-        else:
-            self.redirect(webapp2.uri_for('home_info', status=1))
-
-    # def post(self):

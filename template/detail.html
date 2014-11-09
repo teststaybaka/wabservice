@@ -7,6 +7,9 @@
 
 {% block challenge %}
 <div id="challenge-container">
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
     <div id="challenge-info-bar" class="container">
         <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" id="challenge-title">{{ challenge.title }}</a>
         {% if editable %}

@@ -8,6 +8,9 @@
 <div id="challenge-container">
     <div id="challenge-info-bar" class="container">
         <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" id="challenge-title">{{ challenge.title }}</a>
+        {% if editable %}
+            <a href="{{ uri_for('edit', challenge_id=challenge.challenge_id) }}">Edit</a>
+        {% endif %}
         {% if discussion_active %}
         <a href="{{ uri_for('discussions', challenge_id=challenge.challenge_id) }}" class="bar active" id="discussions-bar">Discussions</a>
         {% else %}
@@ -26,7 +29,7 @@
     </div>
     {% block challenge_body %}
     <div id="state-info-container">
-        <div id="creator-info">{{ creator }}</div>
+        <div id="creator-info">Creator: {{ creator.name }}</div>
         <div class="state-info">Accept: {{ challenge.accept_counts }}</div>
         <div class="state-info">Completed: {{ challenge.completion_counts }}</div>
     </div>

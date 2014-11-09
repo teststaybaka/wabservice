@@ -82,6 +82,7 @@ class BaseHandler(webapp2.RequestHandler):
 
     @webapp2.cached_property
     def session(self):
+<<<<<<< HEAD
         """
         This snippet of code is taken from the webapp2 framework documentation.
         See more at
@@ -115,9 +116,77 @@ class Home(BaseHandler):
 
 
     def get_id_factory(self):
+=======
+        # Returns a session using the default cookie key.
+        return self.session_store.get_session()
+
+class TestSignin(BaseHandler):
+    def get(self):
+        logging.info(self.session)
+        if self.session.get('id'):
+            self.response.write('Already Logged in! go back to <a href="/">Home</a>')
+        else:
+            self.session['id'] = 'testuserid1'
+            self.session['username'] = 'testuser1'
+            self.response.write('Login Success! go back to <a href="/">Home</a>')
+
+class TestLogout(BaseHandler):
+    def get(self):
+        logging.info(self.session)
+        if self.session.get('id'):
+            self.session.pop('id')
+            if self.session.get('username'):
+                self.session.pop('username')
+            self.response.write('Logout Success! go back to <a href="/">Home</a>')
+        else:
+            self.response.write('You are not logged in! go back to <a href="/">Home</a>')
+
+class Home(BaseHandler):
+    def one_time_runing(self):
+
+>>>>>>> a848072ed8d73e16e84bed4283256038dce3fedf
         query = db.GqlQuery("select * from Challenge_ID_Factory")
         for entry in query.run():
-            return entry
+            entry.delete()
+        query = db.GqlQuery("select * from Challenge")
+        for entry in query.run():
+            entry.delete()
+        query = db.GqlQuery("SELECT * FROM User")
+        for entry in query.run():
+            entry.delete()
+
+        challenge_ID_Factory = Challenge_ID_Factory(id_counter=0);
+        challenge_ID_Factory.put();
+
+        user1 = User(
+            id = 'testuserid1',
+            name = 'testuser1',
+            profile_url = '/images/user1profile.jpg',
+            access_token = 'user1token')
+        user1.put()
+
+        user2 = User(
+            id = 'testuserid2',
+            name = 'testuser2',
+            profile_url = '/images/user2profile.jpg',
+            access_token = 'user2token')
+        user2.put()
+        
+        challenge1 = Challenge(challenge_id=challenge_ID_Factory.get_id(), creator_id='testuserid1',
+            title='new challenge', summary="It's great", content='try it out!',
+            state='ongoing', veri_method='image');
+        challenge1.category.append(available_category_list[0]);
+        challenge1.put();
+        challenge2 = Challenge(challenge_id=challenge_ID_Factory.get_id(), creator_id='testuserid2',
+            title='Another one?', summary="It's great", content='really!',
+            state='closed', veri_method='both');
+        challenge2.category.append(available_category_list[3]);
+        challenge2.put();
+
+    # def get_id_factory(self):
+    #     query = db.GqlQuery("select * from Challenge_ID_Factory")
+    #     for entry in query.run():
+    #         return entry
 
     def get_challenges(self, filters = None):
         query = db.GqlQuery("select * from Challenge")
@@ -128,18 +197,27 @@ class Home(BaseHandler):
         return challenge_list
 
     def get(self):
+<<<<<<< HEAD
         challenge_ID_Factory = self.get_id_factory();
         # logging.info("id counter: %d", challenge_ID_Factory.id_counter);
         # self.one_time_runing(challenge_ID_Factory)
+=======
+        # logging.info(self.request)
+        # challenge_ID_Factory = self.get_id_factory();
+        # logging.info("id counter: %d", challenge_ID_Factory.id_counter);
+        # self.one_time_runing()
+>>>>>>> a848072ed8d73e16e84bed4283256038dce3fedf
 
         now_category = 'for fun'
         category_list = available_category_list
         challenge_list = self.get_challenges()
         dialog = 'Hello there. Welcome.'
-        context = { 'username': '', 'dialog': dialog, 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category}
+        # add username
+        context = { 'username': self.session.get('username'), 'dialog': dialog, 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category}
         template = env.get_template('template/index.html')
         self.response.write(template.render(context))
 
+<<<<<<< HEAD
     def home_info(self, status):
         if int(status) == 1 and not self.current_user:
             now_category = 'for fun'
@@ -179,6 +257,8 @@ class Reject(webapp2.RequestHandler):
     def get(self, challenge_id):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
+=======
+>>>>>>> a848072ed8d73e16e84bed4283256038dce3fedf
 
 class Completions(webapp2.RequestHandler):
     def get(self, challenge_id):
@@ -193,16 +273,6 @@ class Completions(webapp2.RequestHandler):
         self.response.write(template.render(context))
 
 class Discussions(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class Upload(webapp2.RequestHandler):
-    def post(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class Confirm(webapp2.RequestHandler):
     def get(self, challenge_id):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')

@@ -109,10 +109,9 @@ def challengeRequestKey(userid):
 class Requests(BaseHandler):
     def get(self):
         if self.session.get('id'):
-            # query = db.GqlQuery("select * from ChallengeRequest where invitee_id = :1", self.session['id'])
-            # requests = query.fetch(None)
             requestKey = challengeRequestKey(self.session['id'])
             requests = ChallengeRequest.all().ancestor(requestKey).fetch(None)
+
             # development purpose only. if no challenge request exists, create one.
             if len(requests) == 0:
                 sampleRequest = ChallengeRequest(inviter_id = 'testuserid1', challenge_id = 1, invitee_id = 'testuserid1', status = 'pending', parent = requestKey)

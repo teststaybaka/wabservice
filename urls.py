@@ -1,5 +1,5 @@
 import webapp2
-import views, account, challenge
+import views, account, challenge, admin
 
 # config for session key, create config.py for configurations
 config = {}
@@ -16,7 +16,6 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/account', account.Account, name='account'),
     webapp2.Route(r'/inbox', account.Inbox, name='inbox'),
     webapp2.Route(r'/history', account.History, name='history'),
-    
 
     webapp2.Route(r'/invite', challenge.Invite, name='invite'),
     webapp2.Route(r'/create', challenge.Create, name='create'),
@@ -34,5 +33,7 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/challenge/<challenge_id:\d+>/completions', views.Completions, name='completions'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/discussions', views.Discussions, name='discussions'),
 
-    webapp2.Route(r'/file/<file_id:\d+>', views.ServeFile, name='serve_file')
+    webapp2.Route(r'/file/<file_id:\d+>', views.ServeFile, name='serve_file'),
+
+    webapp2.Route(r'/admin/init', admin.Init, name='init')
 ], debug=True, config=config)

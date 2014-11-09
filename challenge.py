@@ -20,31 +20,38 @@ class Create(BaseHandler):
             template = env.get_template('template/create.html')
             self.response.write(template.render(context))
         else:
-            self.redirect(webapp2.uri_for('home_info', status=1))
+            self.session['message'] = 'You need to log in!'
+            self.redirect_to('home')
 
     def post(self):
-        if self.current_user:
-            # Naive creation with no scrutiny
-            challenge_ID_Factory = db.GqlQuery("select * from Challenge_ID_Factory").get()
-            challenge = Challenge(
-                challenge_id      = challenge_ID_Factory.get_id(),
-                creator_id        = self.session['id'],
-                title             = self.request.get('title'), 
-                summary           = self.request.get('summary'), 
-                content           = self.request.get('content'),
-                state             = 'ongoing', 
-                veri_method       = self.request.get('veri_method'),
-                category          = [self.request.get('category')],
-                completion_counts = 0,
-                accept_counts     = 0,
-                # parent = challengeKey(self.session['id']),
-                );
-            challenge.put();
-            url = '/challenge/' + str(challenge.challenge_id)
-            self.session['message'] = 'Successfully created challenge!'
-            self.redirect(url)
+        current_user = self.current_user
+        if current_user:
+            current_user_id = current_user.get('id')
+            if current_user_id:
+                # Naive creation with no scrutiny
+                challenge_ID_Factory = db.GqlQuery("select * from Challenge_ID_Factory").get()
+                challenge = Challenge(
+                    challenge_id      = challenge_ID_Factory.get_id(),
+                    creator_id        = current_user_id,
+                    title             = self.request.get('title'), 
+                    summary           = self.request.get('summary'), 
+                    content           = self.request.get('content'),
+                    state             = 'ongoing', 
+                    veri_method       = self.request.get('veri_method'),
+                    category          = [self.request.get('category')],
+                    completion_counts = 0,
+                    accept_counts     = 0,
+                    # parent = challengeKey(self.session['id']),
+                    );
+                challenge.put();
+                url = '/challenge/' + str(challenge.challenge_id)
+                self.session['message'] = 'Successfully created challenge!'
+                self.redirect(url)
+            else:
+                self.response.write("something weird happened: session has no id")
         else:
-            self.redirect(webapp2.uri_for('home_info', status=1))
+            self.session['message'] = 'You need to log in!'
+            self.redirect_to('home')
 
 
 class Edit(BaseHandler):
@@ -53,33 +60,48 @@ class Edit(BaseHandler):
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
         challenge = query.get()
         if challenge is not None:
-            if challenge.creator_id != self.current_user.get('id'):
-                self.response.write('Invalid operation!')
+            current_user = self.current_user
+            if current_user:
+                if challenge.creator_id != current_user.get('id'):
+                    self.session['message'] = 'Invalid operation!'
+                    url = '/challenge/' + str(challenge.challenge_id)
+                    self.redirect(url)
+                else:
+                    context = {'username': current_user.get('name'), 'challenge': challenge}
+                    template = env.get_template('template/edit.html')
+                    self.response.write(template.render(context))
             else:
-                context = {'username': self.session.get('username'), 'challenge': challenge}
-                template = env.get_template('template/edit.html')
-                self.response.write(template.render(context))
+                self.session['message'] = 'You need to log in!'
+                url = '/challenge/' + str(challenge.challenge_id)
+                self.redirect(url)
         else:
             self.response.write('Challenge not found!')
+        
 
     def post(self, challenge_id):
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
         challenge = query.get()
         if challenge is not None:
-            if challenge.creator_id != self.session.get('id'):
-                self.response.write('Invalid operation!')
+            current_user = self.current_user
+            if current_user:
+                if challenge.creator_id != current_user.get('id'):
+                    self.session['message'] = 'Invalid operation!'
+                    self.redirect_to('home')
+                else:
+                    challenge.title = self.request.get('title')
+                    challenge.summary = self.request.get('summary')
+                    challenge.content = self.request.get('content')
+                    challenge.veri_method = self.request.get('veri_method')
+                    challenge.category = [self.request.get('category')]
+                    challenge.put()
+                    # self.response.write('Challenge updated successfully! Go back to <a href="/challenge/' 
+                    #     + str(challenge.challenge_id) + '"> challenge </a>')
+                    url = '/challenge/' + str(challenge.challenge_id)
+                    self.session['message'] = 'Successfully edited challenge!'
+                    self.redirect(url)
             else:
-                challenge.title = self.request.get('title')
-                challenge.summary = self.request.get('summary')
-                challenge.content = self.request.get('content')
-                challenge.veri_method = self.request.get('veri_method')
-                challenge.category = [self.request.get('category')]
-                challenge.put()
-                # self.response.write('Challenge updated successfully! Go back to <a href="/challenge/' 
-                #     + str(challenge.challenge_id) + '"> challenge </a>')
-                url = '/challenge/' + str(challenge.challenge_id)
-                self.session['message'] = 'Successfully edited challenge!'
-                self.redirect(url)
+                self.session['message'] = 'You need to log in!'
+                self.redirect_to('home')
         else:
             self.response.write('Challenge not found!')
 
@@ -87,20 +109,23 @@ class Edit(BaseHandler):
 
 class Detail(BaseHandler):
     def get(self, challenge_id):
-        current_user = self.current_user
-        if current_user:
-            logging.info(self.request)
-            now_category = 'for fun'
-            # logging.info("%s %s", challenge_id, type(challenge_id))
-            # query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-            # challenge = query.get()
-            key = challengeKey(current_user.get('id'))
-            challenge = Challenge.all().filter("challenge_id =", int(challenge_id)).get()
+        
+        now_category = 'for fun'
+        challenge = Challenge.all().filter("challenge_id =", int(challenge_id)).get()
 
-            if challenge is not None:
-                dialog = 'Hello there. Welcome.'
-                creator = db.GqlQuery("select * from User where id = :1", challenge.creator_id).get()
+        if challenge is not None:
+            creator = db.GqlQuery("select * from User where id = :1", challenge.creator_id).get()
+            context = { 'creator': creator, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
+            
+            if self.session.get('message'):
+                context['dialog'] = self.session.get('message')
+                self.session.pop('message')
+            else:
+                context['dialog'] = 'Hello there. Welcome.'
 
+            current_user = self.current_user
+            if current_user:
+                # key = challengeKey(current_user.get('id'))
                 query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), current_user.get('id'))
                 request = query.get()
                 if request:
@@ -110,30 +135,29 @@ class Detail(BaseHandler):
                         state = 4
                     elif request.status == 'rejected':
                         state = 6
+                    context['request_id'] = request.key().id()
                 else:
                     state = 6
-
-                context = { 'state': state, 'creator': creator, 'username': self.session.get('username'), 'dialog': dialog,
-                            'now_category': now_category, 'challenge': challenge, 'intro_active': 1, 'request_id':request.key().id()}
+                context['state'] = state
+                context['username'] = current_user.get('name')
+                
                 if current_user.get('id') == creator.id:
                     context['editable'] = True
-                if self.session.get('message'):
-                    context['message'] = self.session.get('message')
-                    self.session.pop('message')
-                template = env.get_template('template/detail.html')
-                # add ChallengeRequest info here
-                self.response.write(template.render(context))
-                return
 
-        now_category = 'for fun'
-        # logging.info("%s %s", challenge_id, type(challenge_id))
-        query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        for entry in query.run():
-            challenge = entry
-        dialog = 'Hello there. Welcome.'
-        context = { 'state': 1, 'creator': 'creator', 'username': '', 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
-        template = env.get_template('template/detail.html')
-        self.response.write(template.render(context))
+            template = env.get_template('template/detail.html')
+            self.response.write(template.render(context))
+        else:
+            self.response.write("Challenge does not exist!")
+        # else:
+        # now_category = 'for fun'
+        # # logging.info("%s %s", challenge_id, type(challenge_id))
+        # query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
+        # for entry in query.run():
+        #     challenge = entry
+        # dialog = 'Hello there. Welcome.'
+        # context = { 'state': 1, 'creator': 'creator', 'username': '', 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
+        # template = env.get_template('template/detail.html')
+        # self.response.write(template.render(context))
 
 
 class Invite(webapp2.RequestHandler):

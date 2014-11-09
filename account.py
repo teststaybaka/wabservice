@@ -66,11 +66,12 @@ class History(BaseHandler):
         if current_user:
             user = User.get_by_key_name(current_user.get("id"))
             logging.info(user.name)
-            challenge_list = []
-            for userChallenge in user.challenges:
-                challenge_list.append(userChallenge.challenge)
+            # challenge_list = []
+            # for userChallenge in user.challenges:
+            #     challenge_list.append(userChallenge.challenge)
+            requests = ChallengeRequest.all().filter('invitee_id =', current_user.get('id')).fetch(None);
 
-            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.', 'challenge_list':challenge_list}
+            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.', 'requests': requests}
             template = env.get_template('template/account_history.html')
             self.response.write(template.render(context))
         else:

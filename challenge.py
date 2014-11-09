@@ -10,8 +10,8 @@ from views import env
 
 from views import BaseHandler
 
-def challengeKey(userid):
-    return db.Key.from_path('Challenge', userid)
+# def challengeKey(userid):
+#     return db.Key.from_path('Challenge', userid)
 
 class Create(BaseHandler):
     def get(self):
@@ -30,23 +30,34 @@ class Create(BaseHandler):
             if current_user_id:
                 # Naive creation with no scrutiny
                 challenge_ID_Factory = db.GqlQuery("select * from Challenge_ID_Factory").get()
-                challenge = Challenge(
-                    challenge_id      = challenge_ID_Factory.get_id(),
-                    creator_id        = current_user_id,
-                    title             = self.request.get('title'), 
-                    summary           = self.request.get('summary'), 
-                    content           = self.request.get('content'),
-                    state             = 'ongoing', 
-                    veri_method       = self.request.get('veri_method'),
-                    category          = [self.request.get('category')],
-                    completion_counts = 0,
-                    accept_counts     = 0,
-                    # parent = challengeKey(self.session['id']),
-                    );
-                challenge.put();
-                url = '/challenge/' + str(challenge.challenge_id)
-                self.session['message'] = 'Successfully created challenge!'
-                self.redirect(url)
+                # key = challengeKey(current_user.get('id'))
+                user = User.all().filter('id = ', current_user_id).get()
+                if user:
+                    challenge = Challenge(
+                        challenge_id      = challenge_ID_Factory.get_id(),
+                        creator_id        = current_user_id,
+                        title             = self.request.get('title'), 
+                        summary           = self.request.get('summary'), 
+                        content           = self.request.get('content'),
+                        state             = 'ongoing', 
+                        veri_method       = self.request.get('veri_method'),
+                        category          = [self.request.get('category')],
+                        completion_counts = 0,
+                        accept_counts     = 0,
+                        parent = user,
+                        );
+                    challenge.put();
+                    res = Challenge.all().ancestor(user).filter('challenge_id = ', challenge.challenge_id).get();
+                    if res:
+                        url = '/challenge/' + str(challenge.challenge_id)
+                        self.session['message'] = 'Successfully created challenge!'
+                        self.redirect(url)
+                    else:
+                        self.session['message'] = 'Failed to create challenge.'
+                        self.redirect_to('home')
+                else:
+                    logging.info("User not found!")
+                    self.response.write('User not found!')
             else:
                 self.response.write("something weird happened: session has no id")
         else:
@@ -96,9 +107,19 @@ class Edit(BaseHandler):
                     challenge.put()
                     # self.response.write('Challenge updated successfully! Go back to <a href="/challenge/' 
                     #     + str(challenge.challenge_id) + '"> challenge </a>')
+                    res = Challenge.all().ancestor(challenge.parent()).filter('challenge_id = ', challenge.challenge_id).get();
                     url = '/challenge/' + str(challenge.challenge_id)
-                    self.session['message'] = 'Successfully edited challenge!'
-                    self.redirect(url)
+                    logging.info(res)
+                    if res:
+                        self.session['message'] = 'Successfully updated challenge!'
+                        self.redirect(url)
+                    else:
+                        self.session['message'] = 'Failed to update challenge.'
+                        self.redirect(url)
+
+                    # url = '/challenge/' + str(challenge.challenge_id)
+                    # self.session['message'] = 'Successfully edited challenge!'
+                    # self.redirect(url)
             else:
                 self.session['message'] = 'You need to log in!'
                 self.redirect_to('home')

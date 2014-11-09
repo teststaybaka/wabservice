@@ -37,7 +37,6 @@ class BaseHandler(webapp2.RequestHandler):
         cookie = facebook.get_user_from_cookie(self.request.cookies,
                                                    FACEBOOK_APP_ID,
                                                    FACEBOOK_APP_SECRET)
-
         logging.info(cookie)
         if cookie:
             user = User.get_by_key_name(cookie["uid"])
@@ -132,13 +131,23 @@ class Home(BaseHandler):
         now_category = 'for fun'
         category_list = available_category_list
         challenge_list = self.get_challenges()
-        if self.session.get('message'):
-            dialog = self.session.get('message')
-        else:
-            dialog = 'Hello there. Welcome.'
+        dialog = 'Hello there. Welcome.'
         context = { 'username': '', 'dialog': dialog, 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category}
         template = env.get_template('template/index.html')
         self.response.write(template.render(context))
+
+    def home_info(self, status):
+        if int(status) == 1 and not self.current_user:
+            now_category = 'for fun'
+            category_list = available_category_list
+            query = db.GqlQuery("select * from Challenge")
+            challenge_list = self.get_challenges()
+            dialog = 'You need to log in!'
+            context = { 'username': '', 'dialog': dialog, 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category, 'warning':'warning'}
+            template = env.get_template('template/index.html')
+            self.response.write(template.render(context))
+        else:
+            self.redirect(webapp2.uri_for('home'))
 
 class Invite(webapp2.RequestHandler):
     def get(self):

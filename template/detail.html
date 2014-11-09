@@ -70,8 +70,8 @@
             <button class="cancel">Give up</button>
         {% elif state == 5 %}
             <p>You have been challenged. Let's do it!</p>
-            <button class="accept">Accept</button>
-            <button class="reject">Reject</button>
+            <button class="accept"><a href="{{uri_for('accept', request_id=request_id)}}">Accept</a></button>
+            <button class="reject"><a href="{{uri_for('reject', request_id=request_id)}}">Reject</a></button>
         {% elif state == 6 %}
             <p class="suggestion">Take the challenge!</p>
             <button class="take">Take!</button>

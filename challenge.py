@@ -15,15 +15,15 @@ def challengeKey(userid):
 
 class Create(BaseHandler):
     def get(self):
-        if self.session.get('id'):
-            context = {'username': self.session.get('username'), 'dialog': 'You got a good idea?', 'now_category': 'create'}
+        if self.current_user:
+            context = {'dialog': 'You got a good idea?', 'now_category': 'create'}
             template = env.get_template('template/create.html')
             self.response.write(template.render(context))
         else:
-            self.response.write('Please login first! <a href="/">Home</a>')
+            self.redirect(webapp2.uri_for('home_info', status=1))
 
     def post(self):
-        if self.session.get('id'):
+        if self.current_user:
             # Naive creation with no scrutiny
             challenge_ID_Factory = db.GqlQuery("select * from Challenge_ID_Factory").get()
             challenge = Challenge(
@@ -37,14 +37,14 @@ class Create(BaseHandler):
                 category          = [self.request.get('category')],
                 completion_counts = 0,
                 accept_counts     = 0,
-                parent = challengeKey(self.session['id']),
+                # parent = challengeKey(self.session['id']),
                 );
             challenge.put();
             url = '/challenge/' + str(challenge.challenge_id)
             self.session['message'] = 'Successfully created challenge!'
             self.redirect(url)
         else:
-            self.response.write('Please login first! <a href="/">Home</a>')
+            self.redirect(webapp2.uri_for('home_info', status=1))
 
 
 class Edit(BaseHandler):
@@ -53,7 +53,7 @@ class Edit(BaseHandler):
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
         challenge = query.get()
         if challenge is not None:
-            if challenge.creator_id != self.session.get('id'):
+            if challenge.creator_id != self.current_user.get('id'):
                 self.response.write('Invalid operation!')
             else:
                 context = {'username': self.session.get('username'), 'challenge': challenge}
@@ -87,29 +87,54 @@ class Edit(BaseHandler):
 
 class Detail(BaseHandler):
     def get(self, challenge_id):
-        logging.info(self.request)
+        current_user = self.current_user
+        if current_user:
+            logging.info(self.request)
+            now_category = 'for fun'
+            # logging.info("%s %s", challenge_id, type(challenge_id))
+            # query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
+            # challenge = query.get()
+            key = challengeKey(current_user.get('id'))
+            challenge = Challenge.all().filter("challenge_id =", int(challenge_id)).get()
+
+            if challenge is not None:
+                dialog = 'Hello there. Welcome.'
+                creator = db.GqlQuery("select * from User where id = :1", challenge.creator_id).get()
+
+                query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), current_user.get('id'))
+                request = query.get()
+                if request:
+                    if request.status == 'pending':
+                        state = 5
+                    elif request.status == 'accepted':
+                        state = 4
+                    elif request.status == 'rejected':
+                        state = 6
+                else:
+                    state = 6
+
+                context = { 'state': state, 'creator': creator, 'username': self.session.get('username'), 'dialog': dialog,
+                            'now_category': now_category, 'challenge': challenge, 'intro_active': 1, 'request_id':request.key().id()}
+                if current_user.get('id') == creator.id:
+                    context['editable'] = True
+                if self.session.get('message'):
+                    context['message'] = self.session.get('message')
+                    self.session.pop('message')
+                template = env.get_template('template/detail.html')
+                # add ChallengeRequest info here
+                self.response.write(template.render(context))
+                return
+
         now_category = 'for fun'
         # logging.info("%s %s", challenge_id, type(challenge_id))
-        # query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        # challenge = query.get()
-        key = challengeKey(self.session['id'])
-        challenge = Challenge.all().ancestor(key).filter("challenge_id =", int(challenge_id)).get()
+        query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
+        for entry in query.run():
+            challenge = entry
+        dialog = 'Hello there. Welcome.'
+        context = { 'state': 1, 'creator': 'creator', 'username': '', 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
+        template = env.get_template('template/detail.html')
+        self.response.write(template.render(context))
 
-        if challenge is not None:
-            dialog = 'Hello there. Welcome.'
-            creator = db.GqlQuery("select * from User where id = :1", challenge.creator_id).get()
-            context = { 'state': 1, 'creator': creator, 'username': self.session.get('username'), 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
-            if self.session.get('id') == creator.id:
-                context['editable'] = True
-            if self.session.get('message'):
-                context['message'] = self.session.get('message')
-                self.session.pop('message')
-            template = env.get_template('template/detail.html')
-            # add ChallengeRequest info here
-            self.response.write(template.render(context))
-
-        else: # Challenge not found
-            self.response.write('Challenge not found!')
 
 class Invite(webapp2.RequestHandler):
     def get(self):
@@ -121,13 +146,14 @@ def challengeRequestKey(userid):
 
 class Requests(BaseHandler):
     def get(self):
-        if self.session.get('id'):
-            requestKey = challengeRequestKey(self.session['id'])
+        current_user = self.current_user
+        if current_user:
+            requestKey = challengeRequestKey(current_user.get('id'))
             requests = ChallengeRequest.all().ancestor(requestKey).fetch(None)
 
             # development purpose only. if no challenge request exists, create one.
             if len(requests) == 0:
-                sampleRequest = ChallengeRequest(inviter_id = 'testuserid1', challenge_id = 1, invitee_id = 'testuserid1', status = 'pending', parent = requestKey)
+                sampleRequest = ChallengeRequest(inviter_id = current_user.get('id'), challenge_id = 1, invitee_id = current_user.get('id'), status = 'pending', parent = requestKey)
                 sampleRequest.put()
 
             context = { 'requests' : requests }
@@ -138,19 +164,19 @@ class Requests(BaseHandler):
 
 class Accept(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey(self.session['id'])
+        requestKey = challengeRequestKey(self.current_user.get('id'))
         request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'accepted'
         request.put()
-        self.redirect_to('requests')
+        self.redirect_to('detail', challenge_id=request.challenge_id)
 
 class Reject(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey(self.session['id'])
+        requestKey = challengeRequestKey(self.current_user.get('id'))
         request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'rejected'
         request.put()
-        self.redirect_to('requests')
+        self.redirect_to('detail', challenge_id=request.challenge_id)
 
 class Upload(webapp2.RequestHandler):
     def post(self, challenge_id):

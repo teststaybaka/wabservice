@@ -103,32 +103,39 @@ class Invite(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
 
+def challengeRequestKey(userid):
+    return db.Key.from_path('ChallengeRequest', userid)
+
 class Requests(BaseHandler):
     def get(self):
         if self.session.get('id'):
-            query = db.GqlQuery("select * from ChallengeRequest where invitee_id = :1", self.session['id'])
-            requests = query.fetch(None)
+            # query = db.GqlQuery("select * from ChallengeRequest where invitee_id = :1", self.session['id'])
+            # requests = query.fetch(None)
+            requestKey = challengeRequestKey(self.session['id'])
+            requests = ChallengeRequest.all().ancestor(requestKey).fetch(None)
+            # development purpose only. if no challenge request exists, create one.
             if len(requests) == 0:
-                sampleRequest = ChallengeRequest(inviter_id = 'testuserid1', challenge_id = 1, invitee_id = 'testuserid1', status = 'pending')
+                sampleRequest = ChallengeRequest(inviter_id = 'testuserid1', challenge_id = 1, invitee_id = 'testuserid1', status = 'pending', parent = requestKey)
                 sampleRequest.put()
-            else:
-                context = { 'requests' : requests }
 
+            context = { 'requests' : requests }
             template = env.get_template('template/requests.html')
             self.response.write(template.render(context))
         else:
             self.response.write('Please login first! <a href="/">Home</a>')
 
-class Accept(webapp2.RequestHandler):
+class Accept(BaseHandler):
     def get(self, request_id):
-        request = ChallengeRequest.get_by_id(long(request_id))
+        requestKey = challengeRequestKey(self.session['id'])
+        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'accepted'
         request.put()
         self.redirect_to('requests')
 
-class Reject(webapp2.RequestHandler):
+class Reject(BaseHandler):
     def get(self, request_id):
-        request = ChallengeRequest.get_by_id(long(request_id))
+        requestKey = challengeRequestKey(self.session['id'])
+        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'rejected'
         request.put()
         self.redirect_to('requests')

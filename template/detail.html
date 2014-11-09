@@ -2,6 +2,7 @@
 {% block head %}
 {{ super() }}
 <link href="/static/detail.css" rel="stylesheet" type="text/css">
+<script src="/static/detail.js" language="JavaScript" type="text/javascript"></script>
 {% endblock %}
 
 {% block challenge %}
@@ -9,23 +10,11 @@
     <div id="challenge-info-bar" class="container">
         <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" id="challenge-title">{{ challenge.title }}</a>
         {% if editable %}
-            <a href="{{ uri_for('edit', challenge_id=challenge.challenge_id) }}">Edit</a>
+        <a href="{{ uri_for('edit', challenge_id=challenge.challenge_id) }}">Edit</a>
         {% endif %}
-        {% if discussion_active %}
-        <a href="{{ uri_for('discussions', challenge_id=challenge.challenge_id) }}" class="bar active" id="discussions-bar">Discussions</a>
-        {% else %}
         <a href="{{ uri_for('discussions', challenge_id=challenge.challenge_id) }}" class="bar" id="discussions-bar">Discussions</a>
-        {% endif %}
-        {% if completion_active %}
-        <a href="{{ uri_for('completions', challenge_id=challenge.challenge_id) }}" class="bar active" id="completions-bar">Completions</a>
-        {% else %}
         <a href="{{ uri_for('completions', challenge_id=challenge.challenge_id) }}" class="bar" id="completions-bar">Completions</a>
-        {% endif %}
-        {% if intro_active %}
-        <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" class="bar active" class="intro-bar">Introduction</a>
-        {% else %}
-        <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" class="bar" class="intro-bar">Introduction</a>
-        {% endif %}
+        <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" class="bar" id="intro-bar">Introduction</a>
     </div>
     {% block challenge_body %}
     <div id="state-info-container">

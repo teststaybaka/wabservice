@@ -110,10 +110,7 @@ class Home(BaseHandler):
         # challenge2.category.append(available_category_list[3]);
         # challenge2.put();
         user = User.get_by_key_name(u'1498084320443459')
-        query = db.GqlQuery("select * from Challenge where challenge_id = :1 ", 1)
-        for entry in query.run():
-            challenge = entry
-            logging.info("challenge title:" + entry.title)
+        challenge = db.GqlQuery("select * from Challenge where challenge_id = :1 ", 1).get()
         UserChallenge(user=user, challenge=challenge, relationship='accepted').put()
 
 

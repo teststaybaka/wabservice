@@ -31,3 +31,7 @@ p {
     padding-bottom: 10px;
     line-height: 23px;
 }
+
+#submit-button-div {
+    padding-top: 20px;
+}

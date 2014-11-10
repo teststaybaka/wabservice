@@ -28,6 +28,6 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/file/<file_id:\d+>', views.ServeFile, name='serve_file'),
 
     webapp2.Route(r'/test', account.TestFacebook, name='test'),
-    webapp2.Route(r'/admin/init', admin.Init, name='init')
+    webapp2.Route(r'/admin/init', admin.Init, name='init'),
 ], debug=True
 , config=config)

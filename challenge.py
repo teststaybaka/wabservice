@@ -195,12 +195,6 @@ class Requests(BaseHandler):
         if current_user:
             requestKey = challengeRequestKey(current_user.get('id'))
             requests = ChallengeRequest.all().ancestor(requestKey).fetch(None)
-
-            # development purpose only. if no challenge request exists, create one.
-            if len(requests) == 0:
-                sampleRequest = ChallengeRequest(inviter_id = current_user.get('id'), challenge_id = 1, invitee_id = current_user.get('id'), status = 'pending', parent = requestKey)
-                sampleRequest.put()
-
             context = { 'requests' : requests }
             template = env.get_template('template/requests.html')
             self.response.write(template.render(context))

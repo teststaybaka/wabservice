@@ -51,7 +51,7 @@
             <p class="suggestion">You may wanna take a look at other challenges.</p>
         {% elif state == 2 %}
             <p class="elaborate">Your challenge is on the fly.</p>
-            <p class="suggestion">You may wanna take a look at new completing application.</p>
+            <p class="suggestion">You may wanna take a look at new completing applications.</p>
             <button class="others-work">Completions</button>
         {% elif state == 3 %}
             <p class="elaborate">Congratulation! You have completed this challenge.</p>
@@ -76,6 +76,8 @@
             <p class="elaborate">Congratulation! You have completed this challenge.</p>
             <p class="suggestion">You may wanna take a look at how others did.</p>
             <button class="others-work">Completions</button>
+        {% else %}
+            <p class="suggestion">Please login to perform any action.</p>
         {% endif %}
             <button class="back-to-list">Back to list</button>
         </div>

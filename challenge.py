@@ -78,7 +78,7 @@ class Edit(BaseHandler):
                     url = '/challenge/' + str(challenge.challenge_id)
                     self.redirect(url)
                 else:
-                    context = {'username': current_user.get('name'), 'challenge': challenge}
+                    context = {'challenge': challenge}
                     template = env.get_template('template/edit.html')
                     self.response.write(template.render(context))
             else:
@@ -159,12 +159,14 @@ class Detail(BaseHandler):
                     context['request_id'] = request.key().id()
                 else:
                     state = 6
-                context['state'] = state
-                context['username'] = current_user.get('name')
                 
                 if current_user.get('id') == creator.id:
+                    state = 2
                     context['editable'] = True
+            else:
+                state = 8
 
+            context['state'] = state
             template = env.get_template('template/detail.html')
             self.response.write(template.render(context))
         else:

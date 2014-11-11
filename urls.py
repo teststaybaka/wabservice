@@ -9,7 +9,7 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/inbox', account.Inbox, name='inbox'),
     webapp2.Route(r'/history', account.History, name='history'),
 
-    webapp2.Route(r'/invite', challenge.Invite, name='invite'),
+    webapp2.Route(r'/invite/<challenge_id:\d+>', challenge.Invite, name='invite'),
     webapp2.Route(r'/create', challenge.Create, name='create'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/edit', challenge.Edit, name='edit'),
 

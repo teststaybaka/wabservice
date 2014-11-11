@@ -4,6 +4,7 @@ import logging
 from google.appengine.ext import db
 import webapp2
 import jinja2
+import facebook
 
 from models import *
 from views import env
@@ -156,15 +157,23 @@ class Detail(BaseHandler):
                         state = 4
                     elif request.status == 'rejected':
                         state = 6
+                    elif request.status == 'verifying':
+                        state = 8
+                    elif request.status == 'verified':
+                        state = 3
+                        context['friend_list'] = self.getInvitableFriends(current_user, challenge_id, challenge.creator_id)
+                    else:
+                        state = 7
                     context['request_id'] = request.key().id()
                 else:
-                    state = 6
+                    state = 9
                 
                 if current_user.get('id') == creator.id:
                     state = 2
                     context['editable'] = True
+                    context['friend_list'] = self.getInvitableFriends(current_user, challenge_id, challenge.creator_id)
             else:
-                state = 8
+                state = 10
 
             context['state'] = state
             template = env.get_template('template/detail.html')
@@ -182,11 +191,70 @@ class Detail(BaseHandler):
         # template = env.get_template('template/detail.html')
         # self.response.write(template.render(context))
 
+    def getInvitableFriends(self, current_user, challenge_id, creator_id):
+        # get all friends from facebook API
+        graph = facebook.GraphAPI(current_user["access_token"])
+        profile = graph.get_object("me")
+        friends = graph.get_connections("me", "friends")
 
-class Invite(webapp2.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+        #exclude friends who have been invited
+        invitableFriList = []
+        for friend in friends['data']:
+            query = db.GqlQuery("select * from ChallengeRequest where challenge_id=:1 AND invitee_id=:2",
+                                int(challenge_id),
+                                friend['id'])
+            if query.get() is None and friend['id'] != creator_id:
+                invitableFriList.append((friend['name'], friend['id']))
+
+        return invitableFriList
+
+class Invite(BaseHandler):
+    def get(self, challenge_id):
+        self.redirect_to('detail', challenge_id=challenge_id)
+
+    def post(self, challenge_id):
+        current_user = self.current_user
+        current_user_id = None
+        if current_user:
+            current_user_id = current_user.get('id') 
+
+        if current_user_id is not None:
+            creator_id = Challenge.all().filter("challenge_id =", int(challenge_id)).get().creator_id
+            
+            # user as invitee
+            if current_user_id != creator_id:
+                query = db.GqlQuery("select * from ChallengeRequest where invitee_id=:1 AND challenge_id=:2", 
+                                    current_user_id,
+                                    int(challenge_id))
+                queryItem = query.get()
+                queryItem.status = "completed"
+                queryItem.put()
+                ChallengeRequest.all().ancestor(queryItem.parent()) \
+                                    .filter('challenge_id = ', int(challenge_id)).get(); 
+
+            #user as inviter
+            invitee_id = self.request.get("friend1")
+            parent = User.all().filter('id = ', invitee_id).get()
+            # if parent is None:
+            #     user = User(key_name=invitee_id,
+            #                 id=invitee_id,
+            #                 name=invitee_id)
+            #     user.put()
+            request = ChallengeRequest(inviter_id = current_user_id,
+                                        invitee_id = invitee_id,
+                                        challenge_id = int(challenge_id),
+                                        status = "pending",
+                                        parent = parent)
+            request.put()       
+            ChallengeRequest.all().ancestor(parent) \
+                            .filter('challenge_id = ', int(challenge_id)).get(); 
+
+            # reload page
+            url = '/challenge/' + challenge_id
+            self.redirect(url)
+        else:
+            self.session['message'] = 'You need to log in!'
+            self.redirect_to('home')
 
 def challengeRequestKey(userid):
     return db.Key.from_path('ChallengeRequest', userid)

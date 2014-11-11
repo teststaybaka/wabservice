@@ -29,5 +29,6 @@ application = webapp2.WSGIApplication([
 
     webapp2.Route(r'/test', account.TestFacebook, name='test'),
     webapp2.Route(r'/admin/init', admin.Init, name='init'),
+    webapp2.Route(r'/admin/add_new_entity', admin.AddNewEntity, name='add_new_entity'),
 ], debug=True
 , config=config)

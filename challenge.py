@@ -245,14 +245,14 @@ class Invite(BaseHandler):
             self.session['message'] = 'You need to log in!'
             self.redirect_to('home')
 
-def challengeRequestKey(userid):
-    return db.Key.from_path('ChallengeRequest', userid)
+def challengeRequestKey():
+    return db.Key.from_path('EntityType', 'ChallengeRequest')
 
 class Requests(BaseHandler):
     def get(self):
         current_user = self.current_user
         if current_user:
-            requestKey = challengeRequestKey(current_user.get('id'))
+            requestKey = challengeRequestKey()
             requests = ChallengeRequest.all().ancestor(requestKey).fetch(None)
             context = { 'requests' : requests }
             template = env.get_template('template/requests.html')
@@ -262,7 +262,7 @@ class Requests(BaseHandler):
 
 class Accept(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey(self.current_user.get('id'))
+        requestKey = challengeRequestKey()
         request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'accepted'
         request.put()

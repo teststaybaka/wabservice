@@ -218,25 +218,21 @@ class Invite(BaseHandler):
                 queryItem = query.get()
                 queryItem.status = "completed"
                 queryItem.put()
-                ChallengeRequest.all().ancestor(queryItem.parent()) \
-                                    .filter('challenge_id = ', int(challenge_id)).get(); 
 
             #user as inviter
             invitee_id = self.request.get("friend1")
-            parent = User.all().filter('id = ', invitee_id).get()
             # if parent is None:
             #     user = User(key_name=invitee_id,
             #                 id=invitee_id,
             #                 name=invitee_id)
             #     user.put()
+            requestKey = challengeRequestKey()
             request = ChallengeRequest(inviter_id = current_user_id,
                                         invitee_id = invitee_id,
                                         challenge_id = int(challenge_id),
                                         status = "pending",
-                                        parent = parent)
-            request.put()       
-            ChallengeRequest.all().ancestor(parent) \
-                            .filter('challenge_id = ', int(challenge_id)).get(); 
+                                        parent = requestKey)
+            request.put()
 
             # reload page
             url = '/challenge/' + challenge_id

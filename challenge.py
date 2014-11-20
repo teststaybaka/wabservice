@@ -266,7 +266,7 @@ class Accept(BaseHandler):
 
 class Reject(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey(self.current_user.get('id'))
+        requestKey = challengeRequestKey()
         request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'rejected'
         request.put()
@@ -291,9 +291,13 @@ class Upload(BaseHandler):
             self.redirect_to('completions', challenge_id=challenge_id)
 
 class Verify(BaseHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+    def get(self, request_id):
+        logging.info("verify hanlder "+request_id)
+        requestKey = challengeRequestKey()
+        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
+        request.status = 'verified'
+        request.put()
+        self.redirect_to('completions', challenge_id=request.challenge_id)
 
 class Completions(BaseHandler):
     def get(self, challenge_id):
@@ -303,7 +307,8 @@ class Completions(BaseHandler):
         query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1", int(challenge_id))
         for request in query.run():
             invitee_id = request.invitee_id
-            completion_list.append({'name':User.get_by_key_name(invitee_id).name, 'user_id':invitee_id, 'filename': request.file_name})
+            user_name = User.get_by_key_name(invitee_id).name
+            completion_list.append({'request':request, 'name':user_name})
 
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
         challenge = query.get()

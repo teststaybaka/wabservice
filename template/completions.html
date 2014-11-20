@@ -20,7 +20,7 @@
         {% if creator == 1 %}
         {% if entry.get('request').status == 'verifying' %}
         <button class="confirm"><a href="{{uri_for('confirm', request_id=entry.get('request').key().id())}}">Confirm</a></button>
-        <button class="not-confirm">Try again</button>
+        <button class="not-confirm"><a href="{{uri_for('retry', request_id=entry.get('request').key().id())}}">Try again</a></button>
         {% else %}
         {{ entry.get('request').status }}
         {% endif %}

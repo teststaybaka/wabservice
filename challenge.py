@@ -274,7 +274,7 @@ class Reject(BaseHandler):
 
 class Upload(BaseHandler):
     def post(self, challenge_id):
-        logging.info("upload hanlder "+challenge_id)
+        logging.info("upload handler "+challenge_id)
         # logging.info(self.current_user)
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
         request = query.get()
@@ -292,10 +292,19 @@ class Upload(BaseHandler):
 
 class Verify(BaseHandler):
     def get(self, request_id):
-        logging.info("verify hanlder "+request_id)
+        logging.info("verify handler "+request_id)
         requestKey = challengeRequestKey()
         request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'verified'
+        request.put()
+        self.redirect_to('completions', challenge_id=request.challenge_id)
+
+class Retry(BaseHandler):
+    def get(self, request_id):
+        logging.info("retry handler "+request_id)
+        requestKey = challengeRequestKey()
+        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
+        request.status = 'accepted'
         request.put()
         self.redirect_to('completions', challenge_id=request.challenge_id)
 

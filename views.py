@@ -8,6 +8,7 @@ import facebook
 from webapp2_extras import sessions
 from jinja2 import Undefined
 from google.appengine.ext import db
+from google.appengine.ext.webapp import blobstore_handlers
 
 from models import *
 
@@ -32,8 +33,7 @@ env.globals = {
 }
 
 class BaseHandler(webapp2.RequestHandler):
-    @property
-    def current_user(self):
+    def check_status(self):
         cookie = facebook.get_user_from_cookie(self.request.cookies,
                                                    FACEBOOK_APP_ID,
                                                    FACEBOOK_APP_SECRET)
@@ -65,7 +65,18 @@ class BaseHandler(webapp2.RequestHandler):
             )
             return self.session.get("user")
         else:
+            if self.session.get('user'):
+                self.session.pop('user')
             return None
+
+    @property
+    def current_user(self):
+        return self.session.get('user')
+        # if self.session.get('user'):
+        #     return self.session.get('user')
+        # else:
+        #     return None
+            # return self.check_status();
 
     def dispatch(self):
         """

@@ -1,15 +1,4 @@
-import cgi
-import urllib
-import logging
-from google.appengine.ext import db
-import webapp2
-import jinja2
-import facebook
-
-from models import *
-from views import env
-
-from views import BaseHandler
+from views import *
 
 # def challengeKey(userid):
 #     return db.Key.from_path('Challenge', userid)
@@ -155,6 +144,9 @@ class Detail(BaseHandler):
                         state = 5
                     elif request.status == 'accepted':
                         state = 4
+                        upload_url = blobstore.create_upload_url('/challenge/'+challenge_id+'/'+str(request.key().id())+'/upload')
+                        logging.info(upload_url)
+                        context['upload_action'] = upload_url
                     elif request.status == 'rejected':
                         state = 6
                     elif request.status == 'verifying':
@@ -287,10 +279,17 @@ class Reject(BaseHandler):
         request.put()
         self.redirect_to('detail', challenge_id=request.challenge_id)
 
-class Upload(webapp2.RequestHandler):
-    def post(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
+    def post(self, challenge_id, request_id):
+        logging.info("upload hanlder "+challenge_id)
+        # logging.info(self.current_user)
+        requestKey = challengeRequestKey(self.current_user.get('id'))
+        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
+        upload_files = self.get_uploads('file')
+        blob_info = upload_files[0]
+        request.file_entity = blob_info
+        request.put()
+        self.redirect_to('detail', challenge_id=challenge_id)
 
 class Verify(webapp2.RequestHandler):
     def get(self, challenge_id):

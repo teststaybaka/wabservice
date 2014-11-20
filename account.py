@@ -53,7 +53,7 @@ class Account(BaseHandler):
             template = env.get_template('template/account_base.html')
             self.response.write(template.render(context))
         else:
-            self.redirect(webapp2.uri_for('home'))
+            self.redirect_to('home')
 
 class Inbox(webapp2.RequestHandler):
     def get(self):
@@ -75,4 +75,17 @@ class History(BaseHandler):
             template = env.get_template('template/account_history.html')
             self.response.write(template.render(context))
         else:
-            self.redirect(webapp2.uri_for('home'))
+            self.redirect_to('home')
+
+class LoginStatusChange(BaseHandler):
+    #todo: rediret to the page before login
+    def get(self, pre_page):
+        self.check_status()
+        if self.current_user:
+            self.response.set_cookie('status', 'login', path='/')
+        else:
+            self.response.set_cookie('status', 'logout', path='/')
+        if len(pre_page) != 0:
+            pre_page = pre_page[0:-1]
+        logging.info(pre_page)
+        self.redirect('/'+pre_page)

@@ -32,7 +32,6 @@ class ChallengeRequest(db.Model):
     challenge_id = db.IntegerProperty(required=True)
     invitee_id = db.StringProperty(required=True)
     status = db.StringProperty(required=True, choices=['pending', 'accepted', 'rejected', 'verifying', 'verified', 'completed'])
-    file_name = db.StringProperty()
     file_entity = db.BlobProperty()
 
 class Message(object):

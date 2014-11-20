@@ -70,8 +70,12 @@ class History(BaseHandler):
             # for userChallenge in user.challenges:
             #     challenge_list.append(userChallenge.challenge)
             requests = ChallengeRequest.all().filter('invitee_id =', current_user.get('id')).fetch(None);
-
-            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.', 'requests': requests}
+            history_list = []
+            for request in requests:
+                query = db.GqlQuery('select * from Challenge where challenge_id = :1', request.challenge_id)
+                challenge = query.get()
+                history_list.append({'challenge_id':challenge.challenge_id, 'challenge_title':challenge.title, 'status':request.status})
+            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.', 'history_list': history_list}
             template = env.get_template('template/account_history.html')
             self.response.write(template.render(context))
         else:

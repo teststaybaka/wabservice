@@ -82,7 +82,7 @@
             {% endif %}
         {% elif state == 4 %}
             <p class="suggestion">Upload an image or video to verify your success.</p>
-            <form action="{{ upload_action }}" method="post" enctype="multipart/form-data">
+            <form action="{{ uri_for('upload', challenge_id=challenge.challenge_id) }}" method="post" enctype="multipart/form-data">
                 <input type="file" name="file" class="file" />
                 <input type="submit" value="Upload" class="button" />
             </form>

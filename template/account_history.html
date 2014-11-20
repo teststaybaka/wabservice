@@ -1,10 +1,10 @@
 {% extends "template/account_base.html" %}
 
 {% block right_column %}
-{% for request in requests %}
+{% for entry in history_list %}
     <div class="per-challenge">
-        <a href="{{ uri_for('detail', challenge_id=request.challenge_id) }}">{{ request.challenge_id }}</a>
-        <span class="challenge-summary">{{ request.status }}</span>
+        <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.get('challenge_title') }}</a>
+        <span class="challenge-summary">{{ entry.get('status') }}</span>
     </div>
 {% endfor %}
 {% endblock %}

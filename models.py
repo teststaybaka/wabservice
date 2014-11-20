@@ -32,16 +32,12 @@ class ChallengeRequest(db.Model):
     challenge_id = db.IntegerProperty(required=True)
     invitee_id = db.StringProperty(required=True)
     status = db.StringProperty(required=True, choices=['pending', 'accepted', 'rejected', 'verifying', 'verified', 'completed'])
+    file_name = db.StringProperty()
     file_entity = db.BlobProperty()
 
-class Message(object):
+class Message(db.Model):
     message_title = db.StringProperty(required=True)
     message_content = db.StringProperty(required=True)
-
-class Test(db.Model):
-    """test database"""
-    name = db.StringProperty(required=True)
-    password = db.StringProperty(required=True)
 
 class Challenge_ID_Factory(db.Model):
     id_counter = db.IntegerProperty(required=True)

@@ -8,7 +8,6 @@ import facebook
 from webapp2_extras import sessions
 from jinja2 import Undefined
 from google.appengine.ext import db
-from google.appengine.ext.webapp import blobstore_handlers
 
 from models import *
 
@@ -142,69 +141,16 @@ class Home(BaseHandler):
         now_category = 'for fun'
         category_list = available_category_list
         challenge_list = self.get_challenges()
-        dialog = 'Hello there. Welcome.'
-        context = { 'username': '', 'dialog': dialog, 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category}
-        template = env.get_template('template/index.html')
-        self.response.write(template.render(context))
-
-    def home_info(self, status):
-        if int(status) == 1 and not self.current_user:
-            now_category = 'for fun'
-            category_list = available_category_list
-            query = db.GqlQuery("select * from Challenge")
-            challenge_list = self.get_challenges()
-            dialog = 'You need to log in!'
-            context = { 'username': '', 'dialog': dialog, 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category, 'warning':'warning'}
-            template = env.get_template('template/index.html')
-            self.response.write(template.render(context))
+        context = { 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category}
+        if self.session.get('message'):
+            context['dialog'] = self.session.get('message')
+            self.session.pop('message')
         else:
-            self.redirect(webapp2.uri_for('home'))
-
-class Invite(webapp2.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class Detail(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        now_category = 'for fun'
-        # logging.info("%s %s", challenge_id, type(challenge_id))
-        query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        for entry in query.run():
-            challenge = entry
-        dialog = 'Hello there. Welcome.'
-        context = { 'state': 1, 'creator': 'creator', 'username': '', 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
-        template = env.get_template('template/detail.html')
-        self.response.write(template.render(context))
-
-class Accept(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class Reject(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class Completions(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        now_category = 'for fun'
-        # logging.info("%s %s", challenge_id, type(challenge_id))
-        query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        for entry in query.run():
-            challenge = entry
-        dialog = 'How is it going?'
-        context = { 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'completion_active': 1}
-        template = env.get_template('template/detail.html')
+            context['dialog'] = 'Hello there. Welcome.'
+        template = env.get_template('template/index.html')
         self.response.write(template.render(context))
 
 class Discussions(webapp2.RequestHandler):
     def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-class ServeFile(webapp2.RequestHandler):
-    def get(self, file_id):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')

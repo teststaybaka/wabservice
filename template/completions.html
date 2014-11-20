@@ -7,17 +7,17 @@
 {% block challenge_body %}
 <div id="completion-list">
     <div class="entry">
-        <div class="challenger-name">Challenger</div>
+        <div class="challenger">Challenger</div>
         <div class="link">Feat</div>
-        {% if creator %}
+        {% if creator == 1 %}
         <div class="decision">Decision</div>
         {% endif %}
     </div>
     {% for entry in completion_list %}
     <div class="entry">
-        <div class="challenger-name">{{ entry.name }}</div>
-        <div class="link"><a href="{{ uri_for('file_path', file_id=entry.id }}">{{ entry.file_name }}</a></div>
-        {% if creator %}
+        <div class="challenger-name">{{ entry.get('name') }}</div>
+        <div class="link"><a href="{{ uri_for('serve_file', challenge_id=challenge.challenge_id, user_id=entry.get('user_id')) }}"><img src="{{ uri_for('serve_file', challenge_id=challenge.challenge_id, user_id=entry.get('user_id')) }}"><br>{{ entry.get('filename') }}</a></div>
+        {% if creator == 1 %}
         <button class="confirm">Confirm</button>
         <button class="not-confirm">Try again</button>
         {% endif %}

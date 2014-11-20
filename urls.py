@@ -18,15 +18,15 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/requests/<request_id:\d+>/accept', challenge.Accept, name='accept'),
     webapp2.Route(r'/requests/<request_id:\d+>/reject', challenge.Reject, name='reject'),
 
-    webapp2.Route(r'/challenge/<challenge_id:\d+>/<request_id:\d+>/upload', challenge.Upload, name='upload'),
+    webapp2.Route(r'/challenge/<challenge_id:\d+>/upload', challenge.Upload, name='upload'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/confirm', challenge.Verify, name='confirm'),
 
     webapp2.Route(r'/challenge/<challenge_id:\d+>', challenge.Detail, name='detail'),
 
-    webapp2.Route(r'/challenge/<challenge_id:\d+>/completions', views.Completions, name='completions'),
+    webapp2.Route(r'/challenge/<challenge_id:\d+>/completions', challenge.Completions, name='completions'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/discussions', views.Discussions, name='discussions'),
 
-    webapp2.Route(r'/file/<file_id:\d+>', views.ServeFile, name='serve_file'),
+    webapp2.Route(r'/file/<challenge_id:\d+>/<user_id:\d+>', challenge.ServeFile, name='serve_file'),
 
     webapp2.Route(r'/test', account.TestFacebook, name='test'),
     webapp2.Route(r'/admin/init', admin.Init, name='init'),

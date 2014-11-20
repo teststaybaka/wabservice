@@ -38,6 +38,7 @@ class Init(webapp2.RequestHandler):
         challenge2.put()
 
         requestKey = challengeRequestKey(testUserId)
+        # sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '1486877718253752', status = 'pending', parent = requestKey)
         sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '1486877718253752', status = 'accepted', parent = requestKey)
         sampleRequest.put()
 

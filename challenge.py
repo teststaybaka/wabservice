@@ -212,25 +212,21 @@ class Invite(BaseHandler):
                 queryItem = query.get()
                 queryItem.status = "completed"
                 queryItem.put()
-                ChallengeRequest.all().ancestor(queryItem.parent()) \
-                                    .filter('challenge_id = ', int(challenge_id)).get(); 
 
             #user as inviter
             invitee_id = self.request.get("friend1")
-            parent = User.all().filter('id = ', invitee_id).get()
             # if parent is None:
             #     user = User(key_name=invitee_id,
             #                 id=invitee_id,
             #                 name=invitee_id)
             #     user.put()
+            requestKey = challengeRequestKey()
             request = ChallengeRequest(inviter_id = current_user_id,
                                         invitee_id = invitee_id,
                                         challenge_id = int(challenge_id),
                                         status = "pending",
-                                        parent = parent)
-            request.put()       
-            ChallengeRequest.all().ancestor(parent) \
-                            .filter('challenge_id = ', int(challenge_id)).get(); 
+                                        parent = requestKey)
+            request.put()
 
             # reload page
             url = '/challenge/' + challenge_id
@@ -239,14 +235,14 @@ class Invite(BaseHandler):
             self.session['message'] = 'You need to log in!'
             self.redirect_to('home')
 
-def challengeRequestKey(userid):
-    return db.Key.from_path('ChallengeRequest', userid)
+def challengeRequestKey():
+    return db.Key.from_path('EntityType', 'ChallengeRequest')
 
 class Requests(BaseHandler):
     def get(self):
         current_user = self.current_user
         if current_user:
-            requestKey = challengeRequestKey(current_user.get('id'))
+            requestKey = challengeRequestKey()
             requests = ChallengeRequest.all().ancestor(requestKey).fetch(None)
             context = { 'requests' : requests }
             template = env.get_template('template/requests.html')
@@ -256,7 +252,7 @@ class Requests(BaseHandler):
 
 class Accept(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey(self.current_user.get('id'))
+        requestKey = challengeRequestKey()
         request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'accepted'
         request.put()
@@ -264,7 +260,7 @@ class Accept(BaseHandler):
 
 class Reject(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey(self.current_user.get('id'))
+        requestKey = challengeRequestKey()
         request = ChallengeRequest.get_by_id(long(request_id), requestKey)
         request.status = 'rejected'
         request.put()
@@ -289,28 +285,23 @@ class GetUploadURL(BaseHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write(upload_url)
 
-# class Upload(BaseHandler):
-#     def post(self, challenge_id):
-#         logging.info("upload hanlder "+challenge_id)
-#         # logging.info(self.current_user)
-#         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
-#         request = query.get()
-#         upload_file = self.request.POST.get('file', None)
-#         if upload_file == "":
-#             self.session['message'] = 'Please select a file to upload.'
-#             self.redirect_to('detail', challenge_id=challenge_id)
-#         else:
-#             logging.info(upload_file.filename)
-#             request.file_name = upload_file.filename
-#             request.file_entity = db.Blob(upload_file.file.read())
-#             request.status = 'verifying'
-#             request.put()
-#             self.redirect_to('completions', challenge_id=challenge_id)
-
 class Verify(BaseHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
+    def get(self, request_id):
+        logging.info("verify handler "+request_id)
+        requestKey = challengeRequestKey()
+        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
+        request.status = 'verified'
+        request.put()
+        self.redirect_to('completions', challenge_id=request.challenge_id)
+
+class Retry(BaseHandler):
+    def get(self, request_id):
+        logging.info("retry handler "+request_id)
+        requestKey = challengeRequestKey()
+        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
+        request.status = 'accepted'
+        request.put()
+        self.redirect_to('completions', challenge_id=request.challenge_id)
 
 class Completions(BaseHandler):
     def assemble_file_info(self, request):
@@ -328,6 +319,7 @@ class Completions(BaseHandler):
     def get(self, challenge_id):
         now_category = 'for fun'
         # logging.info("%s %s", challenge_id, type(challenge_id))
+        completion_list = []
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
         challenge = query.get()
         creator = 0

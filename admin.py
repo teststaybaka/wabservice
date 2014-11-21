@@ -12,9 +12,9 @@ class Init(webapp2.RequestHandler):
         query = db.GqlQuery("select * from Challenge")
         for entry in query.run():
             entry.delete()
-        query = db.GqlQuery("SELECT * FROM User")
-        for entry in query.run():
-            entry.delete()
+        #query = db.GqlQuery("SELECT * FROM User")
+        #for entry in query.run():
+        #    entry.delete()
         query = db.GqlQuery("SELECT * FROM ChallengeRequest")
         for entry in query.run():
             entry.delete()
@@ -37,9 +37,9 @@ class Init(webapp2.RequestHandler):
         challenge2.category.append(available_category_list[2]);
         challenge2.put()
 
-        requestKey = challengeRequestKey(testUserId)
-        # sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '1486877718253752', status = 'pending', parent = requestKey)
-        sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '1486877718253752', status = 'accepted', parent = requestKey)
+        requestKey = challengeRequestKey()
+        sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '10152423279882927', status = 'pending', parent = requestKey)
+        # sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '1486877718253752', status = 'accepted', parent = requestKey)
         sampleRequest.put()
 
         self.response.headers['Content-Type'] = 'text/plain'

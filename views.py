@@ -8,6 +8,7 @@ import facebook
 from webapp2_extras import sessions
 from jinja2 import Undefined
 from google.appengine.ext import db
+from google.appengine.ext.webapp import blobstore_handlers
 
 from models import *
 
@@ -32,6 +33,20 @@ env.globals = {
 }
 
 class BaseHandler(webapp2.RequestHandler):
+    @property
+    def message(self):
+        if self.session.get('message'):
+            words = self.session.get('message')
+            self.session.pop('message')
+            return words
+        else:
+            if self.current_user:
+                words = 'Hello '+self.current_user.get('name')+'.'
+            else:
+                words = 'Hello there.'
+            words += ' Welcome! Here you can see challenges all over the world. Take one that is challenging you!'
+            return words
+
     def check_status(self):
         cookie = facebook.get_user_from_cookie(self.request.cookies,
                                                    FACEBOOK_APP_ID,
@@ -141,12 +156,7 @@ class Home(BaseHandler):
         now_category = 'for fun'
         category_list = available_category_list
         challenge_list = self.get_challenges()
-        context = { 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category}
-        if self.session.get('message'):
-            context['dialog'] = self.session.get('message')
-            self.session.pop('message')
-        else:
-            context['dialog'] = 'Hello there. Welcome.'
+        context = { 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category, 'dialog':self.message}
         template = env.get_template('template/index.html')
         self.response.write(template.render(context))
 

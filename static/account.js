@@ -1,23 +1,5 @@
 //do not use this script!!!!
 
-var xmlHttpRequest;
-
-function createXmlHttpRequest(){  
-  if(window.ActiveXObject){ //如果是IE浏览器  
-      return new ActiveXObject("Microsoft.XMLHTTP");  
-  }
-  else if(window.XMLHttpRequest){ //非IE浏览器  
-      return new XMLHttpRequest();  
-  }
-}
-
-function handleIpResponse() {
-    if(xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200){  
-        var result = xmlHttpRequest.responseText;
-        console.log(result);
-    } 
-}
-
 (function retrieve_content () {
     var now_url = location.href.split('/');
     console.log(now_url);

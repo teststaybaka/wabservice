@@ -1,3 +1,14 @@
+var xmlHttpRequest;
+
+function createXmlHttpRequest(){  
+  if(window.ActiveXObject){ //如果是IE浏览器  
+      return new ActiveXObject("Microsoft.XMLHTTP");  
+  }
+  else if(window.XMLHttpRequest){ //非IE浏览器  
+      return new XMLHttpRequest();  
+  }
+}
+
 function getCookie(cname) {
   var name = cname + "=";
   var ca = document.cookie.split(';');

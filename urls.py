@@ -10,17 +10,16 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/inbox', account.Inbox, name='inbox'),
     webapp2.Route(r'/history', account.History, name='history'),
 
-    webapp2.Route(r'/invite/<challenge_id:\d+>', challenge.Invite, name='invite'),
-    webapp2.Route(r'/create', challenge.Create, name='create'),
-    webapp2.Route(r'/challenge/<challenge_id:\d+>/edit', challenge.Edit, name='edit'),
-
     webapp2.Route(r'/requests', challenge.Requests, name='requests'),
     webapp2.Route(r'/requests/<request_id:\d+>/accept', challenge.Accept, name='accept'),
     webapp2.Route(r'/requests/<request_id:\d+>/reject', challenge.Reject, name='reject'),
 
+    webapp2.Route(r'/create', challenge.Create, name='create'),
+    webapp2.Route(r'/invite/<challenge_id:\d+>', challenge.Invite, name='invite'),
+    webapp2.Route(r'/challenge/<challenge_id:\d+>/edit', challenge.Edit, name='edit'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/upload', challenge.Upload, name='upload'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>/confirm', challenge.Verify, name='confirm'),
-
+    webapp2.Route(r'/challenge/<challenge_id:\d+>/getUploadURL', challenge.GetUploadURL, name='get_upload_url'),
     webapp2.Route(r'/challenge/<challenge_id:\d+>', challenge.Detail, name='detail'),
 
     webapp2.Route(r'/challenge/<challenge_id:\d+>/completions', challenge.Completions, name='completions'),

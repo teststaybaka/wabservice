@@ -126,13 +126,7 @@ class Detail(BaseHandler):
 
         if challenge is not None:
             creator = db.GqlQuery("select * from User where id = :1", challenge.creator_id).get()
-            context = { 'creator': creator, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
-            
-            if self.session.get('message'):
-                context['dialog'] = self.session.get('message')
-                self.session.pop('message')
-            else:
-                context['dialog'] = 'Hello there. Welcome.'
+            context = { 'creator': creator, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1, 'dialog': self.message}
 
             current_user = self.current_user
             if current_user:
@@ -276,23 +270,42 @@ class Reject(BaseHandler):
         request.put()
         self.redirect_to('detail', challenge_id=request.challenge_id)
 
-class Upload(BaseHandler):
+class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
     def post(self, challenge_id):
-        logging.info("upload hanlder "+challenge_id)
-        # logging.info(self.current_user)
+        upload_files = self.get_uploads('file')  # 'file' is file upload field in the form
+        blob_info = upload_files[0]
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
         request = query.get()
-        upload_file = self.request.POST.get('file', None)
-        if upload_file == "":
-            self.session['message'] = 'Please select a file to upload.'
-            self.redirect_to('detail', challenge_id=challenge_id)
-        else:
-            logging.info(upload_file.filename)
-            request.file_name = upload_file.filename
-            request.file_entity = db.Blob(upload_file.file.read())
-            request.status = 'verifying'
-            request.put()
-            self.redirect_to('completions', challenge_id=challenge_id)
+        request.file_info = blob_info
+        request.status = 'verifying'
+        request.put()
+        logging.info('upload:'+blob_info.filename)
+        self.redirect_to('completions', challenge_id=challenge_id)
+
+class GetUploadURL(BaseHandler):
+    def get(self, challenge_id):
+        upload_url = blobstore.create_upload_url('/challenge/'+challenge_id+'/upload')
+        # logging.info('GetUploadURL:'+upload_url)
+        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.write(upload_url)
+
+# class Upload(BaseHandler):
+#     def post(self, challenge_id):
+#         logging.info("upload hanlder "+challenge_id)
+#         # logging.info(self.current_user)
+#         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
+#         request = query.get()
+#         upload_file = self.request.POST.get('file', None)
+#         if upload_file == "":
+#             self.session['message'] = 'Please select a file to upload.'
+#             self.redirect_to('detail', challenge_id=challenge_id)
+#         else:
+#             logging.info(upload_file.filename)
+#             request.file_name = upload_file.filename
+#             request.file_entity = db.Blob(upload_file.file.read())
+#             request.status = 'verifying'
+#             request.put()
+#             self.redirect_to('completions', challenge_id=challenge_id)
 
 class Verify(BaseHandler):
     def get(self, challenge_id):
@@ -300,30 +313,52 @@ class Verify(BaseHandler):
         self.response.write('Hello, World!')
 
 class Completions(BaseHandler):
+    def assemble_file_info(self, request):
+        invitee_id = request.invitee_id
+        c_type = request.file_info.content_type.split('/')
+        video_type = ''
+        status = request.status
+        if c_type[0] == 'image':
+            tag = 'img'
+        else:
+            tag = 'video'
+            video_type = 'video/'+c_type[1]
+        return {'name':User.get_by_key_name(invitee_id).name, 'user_id':invitee_id, 'filename': request.file_info.filename, 'tag': tag, 'type': video_type, 'status':status}
+
     def get(self, challenge_id):
         now_category = 'for fun'
         # logging.info("%s %s", challenge_id, type(challenge_id))
-        completion_list = []
-        query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1", int(challenge_id))
-        for request in query.run():
-            invitee_id = request.invitee_id
-            completion_list.append({'name':User.get_by_key_name(invitee_id).name, 'user_id':invitee_id, 'filename': request.file_name})
-
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
         challenge = query.get()
         creator = 0
+        completion_list = []
         if self.current_user and challenge.creator_id == self.current_user.get('id'):
             creator = 1
+
+        if creator == 1:
+            query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "verifying")
+            for request in query.run():
+                completion_list.append(self.assemble_file_info(request))
+
+        query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "verified")
+        for request in query.run():
+            completion_list.append(self.assemble_file_info(request))
+        
+        query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "completed")
+        for request in query.run():
+            completion_list.append(self.assemble_file_info(request))
+
         dialog = 'How is it going?'
         # logging.info("challenge "+str(challenge.challenge_id))
         context = { 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'completion_list': completion_list, 'creator':creator}
         template = env.get_template('template/completions.html')
         self.response.write(template.render(context))
 
-class ServeFile(BaseHandler):
+class ServeFile(BaseHandler, blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, challenge_id, user_id):
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), user_id)
         request = query.get()
-        # logging.info(request.file_entity)
-        self.response.headers['Content-Type'] = 'image/jpeg'
-        self.response.write(request.file_entity)
+        logging.info(request.file_info.filename)
+        # self.response.headers['Content-Type'] = 'image/jpeg'
+        # self.response.write(request.file_info)
+        self.send_blob(request.file_info)

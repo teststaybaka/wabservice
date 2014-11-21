@@ -14,7 +14,7 @@ div.challenger-name, div.challenger {
 
 div.challenger-name {
     position: relative;
-    top: -50px;
+    top: -90px;
 }
 
 div.link {
@@ -23,18 +23,24 @@ div.link {
     display: inline-block;
 }
 
-div.decision {
+div.decision, div.confirmed {
     width: 20%;
     text-align: center;
     display: inline-block;
 }
 
+div.confirmed {
+    position: relative;
+    top: -90px;
+}
+
 button.confirm, button.not-confirm {
     margin-left: 20px;
     position: relative;
-    top: -50px;
+    top: -90px;
 }
 
-img {
-    height: 150px;
+img, video {
+    height: 180px;
+    max-width: 320px;
 }

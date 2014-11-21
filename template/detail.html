@@ -82,11 +82,10 @@
             {% endif %}
         {% elif state == 4 %}
             <p class="suggestion">Upload an image or video to verify your success.</p>
-            <form action="{{ uri_for('upload', challenge_id=challenge.challenge_id) }}" method="post" enctype="multipart/form-data">
+            <form method="post" enctype="multipart/form-data" id="upload-form">
                 <input type="file" name="file" class="file" />
-                <input type="submit" value="Upload" class="button" />
+                <button class="upload" id="submit-button" type="button">Upload</button>
             </form>
-            <!--button class="upload">Upload</button-->
             <button class="cancel">Give up</button>
         {% elif state == 5 %}
             <p>You have been challenged. Let's do it!</p>
@@ -106,7 +105,7 @@
         {% else %}
             <p class="suggestion">Please login to perform any action.</p>
         {% endif %}
-            <button class="back-to-list">Back to list</button>
+            <button class="back-to-list"><a href="{{ uri_for('home') }}">Back to list</a></button>
         </div>
     </div>
     {% endblock %}

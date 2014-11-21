@@ -89,8 +89,8 @@
             <button class="cancel">Give up</button>
         {% elif state == 5 %}
             <p>You have been challenged. Let's do it!</p>
-            <button class="accept"><a href="{{uri_for('accept', request_id=request_id)}}">Accept</a></button>
-            <button class="reject"><a href="{{uri_for('reject', request_id=request_id)}}">Reject</a></button>
+            <a class="button accept" href="{{ uri_for('accept', request_id=request_id) }}">Accept</a>
+            <a class="button reject" href="{{ uri_for('reject', request_id=request_id) }}">Reject</a>
         {% elif state == 6 %}
             <p class="suggestion">Challenge rejected. Reconsider Taking the challenge!</p>
             <button class="take">Take!</button>
@@ -99,13 +99,19 @@
             <p class="suggestion">You may wanna take a look at how others did.</p>
             <button class="others-work">Completions</button>
         {% elif state == 8 %}
-            <p class="elaborate">Challenge completion waiting for verification.</p>
+            <p class="elaborate">Your application is waiting for verification.</p>
+            <p class="suggestion">You can upload an new image or video to replace your last upload.</p>
+            <form method="post" enctype="multipart/form-data" id="upload-form">
+                <input type="file" name="file" class="file" />
+                <button class="upload" id="submit-button" type="button">Upload</button>
+            </form>
+            <button class="cancel">Give up</button>
         {% elif state == 9 %}
             <p class="elaborate">You are not invited to the challenge.</p>
         {% else %}
             <p class="suggestion">Please login to perform any action.</p>
         {% endif %}
-            <button class="back-to-list"><a href="{{ uri_for('home') }}">Back to list</a></button>
+            <a class="button" href="{{ uri_for('home') }}">Back to list</a>
         </div>
     </div>
     {% endblock %}

@@ -34,7 +34,7 @@ div.confirmed {
     top: -90px;
 }
 
-button.confirm, button.not-confirm {
+a.confirm, a.not-confirm {
     margin-left: 20px;
     position: relative;
     top: -90px;

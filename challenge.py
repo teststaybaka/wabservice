@@ -276,7 +276,7 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
         request.status = 'verifying'
         request.put()
         logging.info('upload:'+blob_info.filename)
-        self.redirect_to('completions', challenge_id=challenge_id)
+        self.redirect_to('detail', challenge_id=challenge_id)
 
 class GetUploadURL(BaseHandler):
     def get(self, challenge_id):
@@ -314,7 +314,7 @@ class Completions(BaseHandler):
         else:
             tag = 'video'
             video_type = 'video/'+c_type[1]
-        return {'name':User.get_by_key_name(invitee_id).name, 'user_id':invitee_id, 'filename': request.file_info.filename, 'tag': tag, 'type': video_type, 'status':status}
+        return {'name':User.get_by_key_name(invitee_id).name, 'user_id':invitee_id, 'filename': request.file_info.filename, 'tag': tag, 'type': video_type, 'status':status, 'request_id':request.key().id()}
 
     def get(self, challenge_id):
         now_category = 'for fun'

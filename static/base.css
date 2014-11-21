@@ -22,7 +22,7 @@ div.container:after {
     content: "";
 }
 
-button, input.button {
+button, input.button, a.button {
     display: inline-block;
     padding: 6px 10px;
     border: 1px solid rgb(200,200,200);
@@ -31,11 +31,13 @@ button, input.button {
     cursor: pointer;
     font-family:Georgia,Serif,"Times New Roman";
     outline: none;
+    font-weight: normal;
 }
 
-button:hover, input.button:hover {
+button:hover, input.button:hover, a.button:hover {
     box-shadow: 0 0 5px rgb(81,203,238);
     border: 1px solid rgb(81,203,238);
+    color: rgb(0,180,255);
 }
 
 button:active, input.button:active {

@@ -269,14 +269,24 @@ class Reject(BaseHandler):
 class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
     def post(self, challenge_id):
         upload_files = self.get_uploads('file')  # 'file' is file upload field in the form
+        if upload_files == []:
+            # self.session['message'] = 'Please select a file.'
+            # self.redirect_to('detail', challenge_id=challenge_id)
+            self.response.headers['Content-Type'] = 'text/plain'
+            self.response.write('Please select a file.')
+            return
         blob_info = upload_files[0]
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
         request = query.get()
+        if request.file_info != None:
+            request.file_info.delete()
         request.file_info = blob_info
         request.status = 'verifying'
         request.put()
         logging.info('upload:'+blob_info.filename)
-        self.redirect_to('detail', challenge_id=challenge_id)
+        # self.redirect_to('detail', challenge_id=challenge_id)
+        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.write('Upload succeeded.')
 
 class GetUploadURL(BaseHandler):
     def get(self, challenge_id):

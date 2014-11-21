@@ -83,9 +83,10 @@
         {% elif state == 4 %}
             <p class="suggestion">Upload an image or video to verify your success.</p>
             <form method="post" enctype="multipart/form-data" id="upload-form">
-                <input type="file" name="file" class="file" />
+                <input type="file" name="file" class="file" id="file-input" />
                 <button class="upload" id="submit-button" type="button">Upload</button>
             </form>
+            <div id="progress-bar"></div>
             <button class="cancel">Give up</button>
         {% elif state == 5 %}
             <p>You have been challenged. Let's do it!</p>
@@ -102,9 +103,10 @@
             <p class="elaborate">Your application is waiting for verification.</p>
             <p class="suggestion">You can upload an new image or video to replace your last upload.</p>
             <form method="post" enctype="multipart/form-data" id="upload-form">
-                <input type="file" name="file" class="file" />
+                <input type="file" name="file" class="file" id="file-input" />
                 <button class="upload" id="submit-button" type="button">Upload</button>
             </form>
+            <div id="progress-bar"></div>
             <button class="cancel">Give up</button>
         {% elif state == 9 %}
             <p class="elaborate">You are not invited to the challenge.</p>

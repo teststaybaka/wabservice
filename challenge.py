@@ -1,5 +1,5 @@
-from views import *
 from challenge_request_impl import *
+from views import *
 
 # def challengeKey(userid):
 #     return db.Key.from_path('Challenge', userid)
@@ -203,31 +203,7 @@ class Invite(BaseHandler):
             current_user_id = current_user.get('id') 
 
         if current_user_id is not None:
-            creator_id = Challenge.all().filter("challenge_id =", int(challenge_id)).get().creator_id
-            
-            # user as invitee
-            if current_user_id != creator_id:
-                query = db.GqlQuery("select * from ChallengeRequest where invitee_id=:1 AND challenge_id=:2", 
-                                    current_user_id,
-                                    int(challenge_id))
-                queryItem = query.get()
-                queryItem.status = "completed"
-                queryItem.put()
-
-            #user as inviter
-            invitee_id = self.request.get("friend1")
-            # if parent is None:
-            #     user = User(key_name=invitee_id,
-            #                 id=invitee_id,
-            #                 name=invitee_id)
-            #     user.put()
-            requestKey = challenge_request_key()
-            request = ChallengeRequest(inviter_id = current_user_id,
-                                        invitee_id = invitee_id,
-                                        challenge_id = int(challenge_id),
-                                        status = "pending",
-                                        parent = requestKey)
-            request.put()
+            invite(challenge_id, current_user_id, self.request.get("friend1"))
 
             # reload page
             url = '/challenge/' + challenge_id

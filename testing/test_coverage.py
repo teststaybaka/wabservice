@@ -1,6 +1,6 @@
 from coverage import coverage
 
-cov = coverage(branch=True, source='challenge_request_impl.py')
+cov = coverage(branch=True, source=["../challenge_request_impl.py"])
 cov.start()
 
 from testing.challenge_request_unit_tests import *

@@ -5,6 +5,31 @@ def challenge_request_key():
     return db.Key.from_path('EntityType', 'ChallengeRequest')
 
 
+def invite(challenge_id, inviter_id, invitee_id):
+    creator_id = Challenge.all().filter(
+        "challenge_id =", int(challenge_id)).get().creator_id
+
+    # user as invitee
+    if inviter_id != creator_id:
+        query = db.GqlQuery(
+            "select * from ChallengeRequest where invitee_id=:1 AND challenge_id=:2",
+            inviter_id,
+            int(challenge_id))
+        query_item = query.get()
+        if query_item is not None:
+            query_item.status = "completed"
+            query_item.put()
+
+    # user as inviter
+    request_key = challenge_request_key()
+    request = ChallengeRequest(inviter_id=inviter_id,
+                               invitee_id=invitee_id,
+                               challenge_id=int(challenge_id),
+                               status="pending",
+                               parent=request_key)
+    request.put()
+
+
 def update_request_status(request_id, status):
     request_key = challenge_request_key()
     request = ChallengeRequest.get_by_id(long(request_id), request_key)
@@ -14,16 +39,16 @@ def update_request_status(request_id, status):
 
 
 def accept_request(request_id):
-    return update_request_status('accepted')
+    return update_request_status(request_id, 'accepted')
 
 
 def reject_request(request_id):
-    return update_request_status('rejected')
+    return update_request_status(request_id, 'rejected')
 
 
 def verify_request(request_id):
-    return update_request_status('verified')
+    return update_request_status(request_id, 'verified')
 
 
 def retry_request(request_id):
-    return update_request_status('retry')
+    return update_request_status(request_id, 'pending')

@@ -1,9 +1,12 @@
+from enum import Enum
+
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
 
 available_category_list = ['Public', 'Closed', 'Charity', 'For fun']
 challenges_states = ['ongoing', 'closed']
 verification_methods = ['video', 'image', 'both']
+
 
 class User(db.Model):
     id = db.StringProperty(required=True)
@@ -13,6 +16,7 @@ class User(db.Model):
     profile_url = db.StringProperty(required=True)
     access_token = db.StringProperty(required=True)
     messages = db.ListProperty(db.Key)
+
 
 class Challenge(db.Model):
     challenge_id = db.IntegerProperty(required=True)
@@ -27,6 +31,7 @@ class Challenge(db.Model):
     completion_counts = db.IntegerProperty()
     accept_counts = db.IntegerProperty()
 
+
 class ChallengeRequest(db.Model):
     inviter_id = db.StringProperty(required=True)
     challenge_id = db.IntegerProperty(required=True)
@@ -34,9 +39,11 @@ class ChallengeRequest(db.Model):
     status = db.StringProperty(required=True, choices=['pending', 'accepted', 'rejected', 'verifying', 'verified', 'completed'])
     file_info = blobstore.BlobReferenceProperty()
 
+
 class Message(db.Model):
     message_title = db.StringProperty(required=True)
     message_content = db.StringProperty(required=True)
+
 
 class Challenge_ID_Factory(db.Model):
     id_counter = db.IntegerProperty(required=True)

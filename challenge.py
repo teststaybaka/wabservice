@@ -1,4 +1,5 @@
 from views import *
+from challenge_request_impl import *
 
 # def challengeKey(userid):
 #     return db.Key.from_path('Challenge', userid)
@@ -235,9 +236,6 @@ class Invite(BaseHandler):
             self.session['message'] = 'You need to log in!'
             self.redirect_to('home')
 
-def challengeRequestKey():
-    return db.Key.from_path('EntityType', 'ChallengeRequest')
-
 class Requests(BaseHandler):
     def get(self):
         current_user = self.current_user
@@ -252,11 +250,8 @@ class Requests(BaseHandler):
 
 class Accept(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey()
-        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
-        request.status = 'accepted'
-        request.put()
-        self.redirect_to('detail', challenge_id=request.challenge_id)
+        challenge_id = acceptRequest(request_id)
+        self.redirect_to('detail', challenge_id=challenge_id)
 
 class Reject(BaseHandler):
     def get(self, request_id):

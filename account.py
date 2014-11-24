@@ -70,12 +70,29 @@ class History(BaseHandler):
             # for userChallenge in user.challenges:
             #     challenge_list.append(userChallenge.challenge)
             requests = ChallengeRequest.all().filter('invitee_id =', current_user.get('id')).fetch(None);
-            history_list = []
+            invited_list = []
             for request in requests:
                 query = db.GqlQuery('select * from Challenge where challenge_id = :1', request.challenge_id)
                 challenge = query.get()
-                history_list.append({'challenge_id':challenge.challenge_id, 'challenge_title':challenge.title, 'status':request.status})
-            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.', 'history_list': history_list}
+                query = db.GqlQuery('select * from User where id = :1', request.inviter_id)
+                inviter = query.get()
+                invited_list.append({'challenge_id':challenge.challenge_id, 'challenge_title':challenge.title, 'status':request.status, 'inviter': inviter})
+            
+            requests = ChallengeRequest.all().filter('inviter_id =', current_user.get('id')).fetch(None);
+            inviting_list = []
+            for request in requests:
+                query = db.GqlQuery('select * from Challenge where challenge_id = :1', request.challenge_id)
+                challenge = query.get()
+                query = db.GqlQuery('select * from User where id = :1', request.inviter_id)
+                invitee = query.get()
+                inviting_list.append({'challenge_id':challenge.challenge_id, 'challenge_title':challenge.title, 'status':request.status, 'invitee': invitee})
+            created_list = []
+            challenges = Challenge.all().filter('creator_id =', current_user.get('id')).fetch(None);
+            for challenge in challenges:
+                created_list.append({'challenge_id': challenge.challenge_id, 'challenge_title': challenge.title})
+
+            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.',
+              'invited_list': invited_list, 'inviting_list': inviting_list, 'created_list': created_list}
             template = env.get_template('template/account_history.html')
             self.response.write(template.render(context))
         else:

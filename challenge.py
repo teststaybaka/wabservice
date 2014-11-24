@@ -221,7 +221,7 @@ class Invite(BaseHandler):
             #                 id=invitee_id,
             #                 name=invitee_id)
             #     user.put()
-            requestKey = challengeRequestKey()
+            requestKey = challenge_request_key()
             request = ChallengeRequest(inviter_id = current_user_id,
                                         invitee_id = invitee_id,
                                         challenge_id = int(challenge_id),
@@ -236,30 +236,33 @@ class Invite(BaseHandler):
             self.session['message'] = 'You need to log in!'
             self.redirect_to('home')
 
+
 class Requests(BaseHandler):
     def get(self):
         current_user = self.current_user
         if current_user:
-            requestKey = challengeRequestKey()
-            requests = ChallengeRequest.all().ancestor(requestKey).fetch(None)
-            context = { 'requests' : requests }
+            request_key = challenge_request_key()
+            requests = ChallengeRequest.all().ancestor(request_key).fetch(None)
+            context = {'requests': requests}
             template = env.get_template('template/requests.html')
             self.response.write(template.render(context))
         else:
             self.response.write('Please login first! <a href="/">Home</a>')
 
+
 class Accept(BaseHandler):
     def get(self, request_id):
-        challenge_id = acceptRequest(request_id)
+        logging.info("accept handler " + request_id)
+        challenge_id = accept_request(request_id)
         self.redirect_to('detail', challenge_id=challenge_id)
+
 
 class Reject(BaseHandler):
     def get(self, request_id):
-        requestKey = challengeRequestKey()
-        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
-        request.status = 'rejected'
-        request.put()
-        self.redirect_to('detail', challenge_id=request.challenge_id)
+        logging.info("reject handler " + request_id)
+        challenge_id = reject_request(request_id)
+        self.redirect_to('detail', challenge_id=challenge_id)
+
 
 class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
     def post(self, challenge_id):
@@ -283,6 +286,7 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Upload succeeded.')
 
+
 class GetUploadURL(BaseHandler):
     def get(self, challenge_id):
         upload_url = blobstore.create_upload_url('/challenge/'+challenge_id+'/upload')
@@ -290,23 +294,20 @@ class GetUploadURL(BaseHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write(upload_url)
 
+
 class Verify(BaseHandler):
     def get(self, request_id):
-        logging.info("verify handler "+request_id)
-        requestKey = challengeRequestKey()
-        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
-        request.status = 'verified'
-        request.put()
-        self.redirect_to('completions', challenge_id=request.challenge_id)
+        logging.info("verify handler " + request_id)
+        challenge_id = verify_request(request_id)
+        self.redirect_to('completions', challenge_id=challenge_id)
+
 
 class Retry(BaseHandler):
     def get(self, request_id):
-        logging.info("retry handler "+request_id)
-        requestKey = challengeRequestKey()
-        request = ChallengeRequest.get_by_id(long(request_id), requestKey)
-        request.status = 'accepted'
-        request.put()
-        self.redirect_to('completions', challenge_id=request.challenge_id)
+        logging.info("retry handler " + request_id)
+        challenge_id = retry_request(request_id)
+        self.redirect_to('completions', challenge_id=challenge_id)
+
 
 class Completions(BaseHandler):
     def assemble_file_info(self, request):
@@ -350,6 +351,7 @@ class Completions(BaseHandler):
         context = { 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'completion_list': completion_list, 'creator':creator}
         template = env.get_template('template/completions.html')
         self.response.write(template.render(context))
+
 
 class ServeFile(BaseHandler, blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, challenge_id, user_id):

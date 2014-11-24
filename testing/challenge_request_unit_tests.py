@@ -1,6 +1,8 @@
 import unittest
+
 from challenge import *
 from google.appengine.ext import testbed
+
 
 class ChallengeRequestUnitTests(unittest.TestCase):
     def setUp(self):
@@ -17,16 +19,21 @@ class ChallengeRequestUnitTests(unittest.TestCase):
 
     def test_accept(self):
         # create a sample request
-        request_key = challengeRequestKey()
-        sample_request = ChallengeRequest(inviter_id = self.test_user_id1, challenge_id = self.test_challenge_id1, \
-                                         invitee_id = self.test_user_id2, status = 'pending', parent = request_key)
+        request_key = challenge_request_key()
+        sample_request = ChallengeRequest(
+            inviter_id=self.test_user_id1,
+            challenge_id=self.test_challenge_id1,
+            invitee_id=self.test_user_id2,
+            status='pending',
+            parent=request_key)
         sample_request.put()
 
         # accept the request
-        acceptRequest(sample_request.key().id())
+        accept_request(sample_request.key().id())
 
-        # re-query the request to make sure we get the updated value, and then verify
-        sample_request = ChallengeRequest.get_by_id(long(sample_request.key().id()), request_key)
+        # re-query the request to make sure we get the updated value and verify
+        sample_request = ChallengeRequest.get_by_id(
+            long(sample_request.key().id()), request_key)
         self.assertTrue(sample_request.status == 'accepted')
 
     def tearDown(self):

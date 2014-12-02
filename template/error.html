@@ -1,0 +1,12 @@
+{% extends "template/base.html" %}
+{% block head %}
+{{ super() }}
+<meta http-equiv="refresh" content="3; url={{ redirect_url }}">
+{% endblock %}
+
+{% block body %}
+<div class="container" id="body-container">
+    {{ message }}
+    You will be redirected to the previous page after 3 seconds.
+</div>
+{% endblock %}

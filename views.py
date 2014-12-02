@@ -115,6 +115,14 @@ class BaseHandler(webapp2.RequestHandler):
         """
         return self.session_store.get_session()
 
+    def handle_exception(self, exception, debug):
+        template = env.get_template('template/error.html')
+        message = "An unexpected error has occurred."
+        context = {'redirect_url': webapp2.uri_for('home'),
+                   'message': message}
+        self.response.write(template.render(context))
+
+
 class Home(BaseHandler):
     def one_time_runing(self, challenge_ID_Factory):
         # challenge_ID_Factory = Challenge_ID_Factory(id_counter=0);

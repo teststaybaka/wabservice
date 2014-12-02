@@ -192,6 +192,7 @@ class Detail(BaseHandler):
 
         return invitableFriList
 
+
 class Invite(BaseHandler):
     def get(self, challenge_id):
         self.redirect_to('detail', challenge_id=challenge_id)
@@ -202,12 +203,13 @@ class Invite(BaseHandler):
         if current_user:
             current_user_id = current_user.get('id') 
 
-        if current_user_id is not None:
-            invite(challenge_id, current_user_id, self.request.get("friend1"))
+            if current_user_id is not None:
+                invite(challenge_id, current_user_id, self.request.get("friend1"))
 
-            # reload page
-            url = '/challenge/' + challenge_id
-            self.redirect(url)
+                # reload page
+                url = '/challenge/' + challenge_id
+                self.redirect(url)
+
         else:
             self.session['message'] = 'You need to log in!'
             self.redirect_to('home')

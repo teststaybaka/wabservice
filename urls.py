@@ -1,8 +1,9 @@
 import webapp2
 import views, account, challenge, admin
 
+secret_key = 'efrghtrrouhsmvnmxdiosjdoifds68_=iooijgrdxuihbvc97yutcivbhugd479k'
 config = {}
-config['webapp2_extras.sessions'] = dict(secret_key='efrghtrrouhsmvnmxdiosjdoifds68_=iooijgrdxuihbvc97yutcivbhugd479k')#, session_max_age=10)
+config['webapp2_extras.sessions'] = dict(secret_key=secret_key)#, session_max_age=10)
 application = webapp2.WSGIApplication([
     webapp2.Route(r'/', views.Home, name='home'),
     webapp2.Route(r'/loginstatuschange/<pre_page:.*>', account.LoginStatusChange, name='loginstatuschange'),
@@ -27,6 +28,8 @@ application = webapp2.WSGIApplication([
     webapp2.Route(r'/challenge/<challenge_id:\d+>/discussions', views.Discussions, name='discussions'),
 
     webapp2.Route(r'/file/<challenge_id:\d+>/<user_id:\d+>', challenge.ServeFile, name='serve_file'),
+
+    webapp2.Route(r'/error', name='error'),
 
     webapp2.Route(r'/test', account.TestFacebook, name='test'),
     webapp2.Route(r'/admin/init', admin.Init, name='init'),

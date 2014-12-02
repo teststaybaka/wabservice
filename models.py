@@ -1,5 +1,3 @@
-from enum import Enum
-
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
 

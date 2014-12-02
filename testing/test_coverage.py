@@ -1,8 +1,9 @@
 from coverage import coverage
 
-cov = coverage(branch=True, source=["../challenge_request_impl.py",
-                                    "../challenge.py",
-                                    "../views.py"])
+cov = coverage(branch=True, source=[
+    "../challenge_request_impl.py",
+    "../challenge.py",
+    "../views.py"])
 cov.start()
 
 from testing.challenge_request_unit_tests import *

@@ -5,11 +5,12 @@ from google.appengine.ext import testbed
 from webapp2_extras.securecookie import SecureCookieSerializer
 
 from challenge import *
-from urls import application, secret_key
+from urls import application
+
 
 class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
     APPLICATION = application
-    KEY = secret_key
+    KEY = SECRET_KEY
 
     def setUp(self):
         # initializing app engine testing environment
@@ -38,7 +39,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
     # TEAM102014-8
     def test_invite(self):
         # create a sample challenge
-        sample_challenge_id=self.challenge_ID_Factory.get_id()
+        sample_challenge_id = self.challenge_ID_Factory.get_id()
         sample_challenge = Challenge(
             challenge_id=sample_challenge_id,
             creator_id=self.test_user_id1,
@@ -46,7 +47,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             summary="It's great",
             content='try it out!',
             state='ongoing',
-            veri_method='image');
+            veri_method='image')
         sample_challenge.category.append(available_category_list[0])
         sample_challenge.put()
 
@@ -71,8 +72,8 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         headers = {'Cookie': 'session=%s' % serialized}
 
         self.app.post('/invite/' + str(sample_challenge_id),
-                  params={'friend1': self.test_user_id3},
-                  headers=headers)
+                      params={'friend1': self.test_user_id3},
+                      headers=headers)
 
         # get the request created by the invite() call
         request = ChallengeRequest.all().ancestor(request_key) \
@@ -90,7 +91,8 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         self.assertEqual(request.status, 'pending')
 
     def test_invite_not_logged_in(self):
-        response = self.app.post('/invite/1', params={'friend1': self.test_user_id1})
+        response = self.app.post('/invite/1',
+                                 params={'friend1': self.test_user_id1})
         self.assertRedirects(response)
 
     # TEAM102014-29
@@ -106,6 +108,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         sample_request.put()
 
         # accept the request
+        url = webapp2.uri_for(RouteName.ACCEPT, request_id=sample_request.key().id())
         self.get(
             '/requests/' + str(sample_request.key().id()) + '/accept')
 

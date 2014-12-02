@@ -17,7 +17,7 @@ def invite(challenge_id, inviter_id, invitee_id):
             int(challenge_id))
         query_item = query.get()
         if query_item is not None:
-            query_item.status = "completed"
+            query_item.status = RequestStatus.COMPLETED
             query_item.put()
 
     # user as inviter
@@ -25,7 +25,7 @@ def invite(challenge_id, inviter_id, invitee_id):
     request = ChallengeRequest(inviter_id=inviter_id,
                                invitee_id=invitee_id,
                                challenge_id=int(challenge_id),
-                               status="pending",
+                               status=RequestStatus.PENDING,
                                parent=request_key)
     request.put()
 
@@ -39,16 +39,16 @@ def update_request_status(request_id, status):
 
 
 def accept_request(request_id):
-    return update_request_status(request_id, 'accepted')
+    return update_request_status(request_id, RequestStatus.ACCEPTED)
 
 
 def reject_request(request_id):
-    return update_request_status(request_id, 'rejected')
+    return update_request_status(request_id, RequestStatus.REJECTED)
 
 
 def verify_request(request_id):
-    return update_request_status(request_id, 'verified')
+    return update_request_status(request_id, RequestStatus.VERIFIED)
 
 
 def retry_request(request_id):
-    return update_request_status(request_id, 'pending')
+    return update_request_status(request_id, RequestStatus.PENDING)

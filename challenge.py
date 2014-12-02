@@ -12,7 +12,7 @@ class Create(BaseHandler):
             self.response.write(template.render(context))
         else:
             self.session['message'] = 'You need to log in!'
-            self.redirect_to('home')
+            self.redirect_to(RouteName.HOME)
 
     def post(self):
         current_user = self.current_user
@@ -27,25 +27,25 @@ class Create(BaseHandler):
                     challenge = Challenge(
                         challenge_id      = challenge_ID_Factory.get_id(),
                         creator_id        = current_user_id,
-                        title             = self.request.get('title'), 
-                        summary           = self.request.get('summary'), 
+                        title             = self.request.get('title'),
+                        summary           = self.request.get('summary'),
                         content           = self.request.get('content'),
-                        state             = 'ongoing', 
+                        state             = 'ongoing',
                         veri_method       = self.request.get('veri_method'),
                         category          = [self.request.get('category')],
                         completion_counts = 0,
                         accept_counts     = 0,
                         parent = user,
-                        );
-                    challenge.put();
-                    res = Challenge.all().ancestor(user).filter('challenge_id = ', challenge.challenge_id).get();
+                        )
+                    challenge.put()
+                    res = Challenge.all().ancestor(user).filter('challenge_id = ', challenge.challenge_id).get()
                     if res:
-                        url = '/challenge/' + str(challenge.challenge_id)
                         self.session['message'] = 'Successfully created challenge!'
-                        self.redirect(url)
+                        self.redirect_to(RouteName.DETAIL,
+                                         challenge_id=challenge.challenge_id)
                     else:
                         self.session['message'] = 'Failed to create challenge.'
-                        self.redirect_to('home')
+                        self.redirect_to(RouteName.HOME)
                 else:
                     logging.info("User not found!")
                     self.response.write('User not found!')
@@ -53,7 +53,7 @@ class Create(BaseHandler):
                 self.response.write("something weird happened: session has no id")
         else:
             self.session['message'] = 'You need to log in!'
-            self.redirect_to('home')
+            self.redirect_to(RouteName.HOME)
 
 
 class Edit(BaseHandler):
@@ -66,19 +66,19 @@ class Edit(BaseHandler):
             if current_user:
                 if challenge.creator_id != current_user.get('id'):
                     self.session['message'] = 'Invalid operation!'
-                    url = '/challenge/' + str(challenge.challenge_id)
-                    self.redirect(url)
+                    self.redirect_to(RouteName.DETAIL,
+                                     challenge_id=challenge.challenge_id)
                 else:
                     context = {'challenge': challenge}
                     template = env.get_template('template/edit.html')
                     self.response.write(template.render(context))
             else:
                 self.session['message'] = 'You need to log in!'
-                url = '/challenge/' + str(challenge.challenge_id)
-                self.redirect(url)
+                self.redirect_to(RouteName.DETAIL,
+                                 challenge_id=challenge.challenge_id)
         else:
             self.response.write('Challenge not found!')
-        
+
 
     def post(self, challenge_id):
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
@@ -88,7 +88,7 @@ class Edit(BaseHandler):
             if current_user:
                 if challenge.creator_id != current_user.get('id'):
                     self.session['message'] = 'Invalid operation!'
-                    self.redirect_to('home')
+                    self.redirect_to(RouteName.HOME)
                 else:
                     challenge.title = self.request.get('title')
                     challenge.summary = self.request.get('summary')
@@ -99,7 +99,8 @@ class Edit(BaseHandler):
                     # self.response.write('Challenge updated successfully! Go back to <a href="/challenge/' 
                     #     + str(challenge.challenge_id) + '"> challenge </a>')
                     res = Challenge.all().ancestor(challenge.parent()).filter('challenge_id = ', challenge.challenge_id).get();
-                    url = '/challenge/' + str(challenge.challenge_id)
+                    url = webapp2.uri_for(RouteName.DETAIL,
+                                          challenge_id=challenge.challenge_id)
                     logging.info(res)
                     if res:
                         self.session['message'] = 'Successfully updated challenge!'
@@ -108,12 +109,12 @@ class Edit(BaseHandler):
                         self.session['message'] = 'Failed to update challenge.'
                         self.redirect(url)
 
-                    # url = '/challenge/' + str(challenge.challenge_id)
-                    # self.session['message'] = 'Successfully edited challenge!'
-                    # self.redirect(url)
+                        # url = '/challenge/' + str(challenge.challenge_id)
+                        # self.session['message'] = 'Successfully edited challenge!'
+                        # self.redirect(url)
             else:
                 self.session['message'] = 'You need to log in!'
-                self.redirect_to('home')
+                self.redirect_to(RouteName.HOME)
         else:
             self.response.write('Challenge not found!')
 
@@ -121,7 +122,7 @@ class Edit(BaseHandler):
 
 class Detail(BaseHandler):
     def get(self, challenge_id):
-        
+
         now_category = 'for fun'
         challenge = Challenge.all().filter("challenge_id =", int(challenge_id)).get()
 
@@ -135,27 +136,29 @@ class Detail(BaseHandler):
                 query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), current_user.get('id'))
                 request = query.get()
                 if request:
-                    if request.status == 'pending':
+                    if request.status == RequestStatus.PENDING:
                         state = 5
-                    elif request.status == 'accepted':
+                    elif request.status == RequestStatus.ACCEPTED:
                         state = 4
-                    elif request.status == 'rejected':
+                    elif request.status == RequestStatus.REJECTED:
                         state = 6
-                    elif request.status == 'verifying':
+                    elif request.status == RequestStatus.VERIFYING:
                         state = 8
-                    elif request.status == 'verified':
+                    elif request.status == RequestStatus.VERIFIED:
                         state = 3
-                        context['friend_list'] = self.getInvitableFriends(current_user, challenge_id, challenge.creator_id)
+                        context['friend_list'] = self.getInvitableFriends(
+                            current_user, challenge_id, challenge.creator_id)
                     else:
                         state = 7
                     context['request_id'] = request.key().id()
                 else:
                     state = 9
-                
+
                 if current_user.get('id') == creator.id:
                     state = 2
                     context['editable'] = True
-                    context['friend_list'] = self.getInvitableFriends(current_user, challenge_id, challenge.creator_id)
+                    context['friend_list'] = self.getInvitableFriends(
+                        current_user, challenge_id, challenge.creator_id)
             else:
                 state = 10
 
@@ -164,16 +167,16 @@ class Detail(BaseHandler):
             self.response.write(template.render(context))
         else:
             self.response.write("Challenge does not exist!")
-        # else:
-        # now_category = 'for fun'
-        # # logging.info("%s %s", challenge_id, type(challenge_id))
-        # query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        # for entry in query.run():
-        #     challenge = entry
-        # dialog = 'Hello there. Welcome.'
-        # context = { 'state': 1, 'creator': 'creator', 'username': '', 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
-        # template = env.get_template('template/detail.html')
-        # self.response.write(template.render(context))
+            # else:
+            # now_category = 'for fun'
+            # # logging.info("%s %s", challenge_id, type(challenge_id))
+            # query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
+            # for entry in query.run():
+            #     challenge = entry
+            # dialog = 'Hello there. Welcome.'
+            # context = { 'state': 1, 'creator': 'creator', 'username': '', 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1}
+            # template = env.get_template('template/detail.html')
+            # self.response.write(template.render(context))
 
     def getInvitableFriends(self, current_user, challenge_id, creator_id):
         # get all friends from facebook API
@@ -201,31 +204,17 @@ class Invite(BaseHandler):
         current_user = self.current_user
         current_user_id = None
         if current_user:
-            current_user_id = current_user.get('id') 
+            current_user_id = current_user.get('id')
 
             if current_user_id is not None:
                 invite(challenge_id, current_user_id, self.request.get("friend1"))
 
                 # reload page
-                url = '/challenge/' + challenge_id
-                self.redirect(url)
+                self.redirect_to(RouteName.DETAIL, challenge_id=challenge_id)
 
         else:
             self.session['message'] = 'You need to log in!'
             self.redirect_to('home')
-
-
-class Requests(BaseHandler):
-    def get(self):
-        current_user = self.current_user
-        if current_user:
-            request_key = challenge_request_key()
-            requests = ChallengeRequest.all().ancestor(request_key).fetch(None)
-            context = {'requests': requests}
-            template = env.get_template('template/requests.html')
-            self.response.write(template.render(context))
-        else:
-            self.response.write('Please login first! <a href="/">Home</a>')
 
 
 class Accept(BaseHandler):
@@ -257,7 +246,7 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
         if request.file_info != None:
             request.file_info.delete()
         request.file_info = blob_info
-        request.status = 'verifying'
+        request.status = RequestStatus.VERIFYING
         request.put()
         logging.info('upload:'+blob_info.filename)
         # self.redirect_to('detail', challenge_id=challenge_id)
@@ -319,7 +308,7 @@ class Completions(BaseHandler):
         query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "verified")
         for request in query.run():
             completion_list.append(self.assemble_file_info(request))
-        
+
         query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "completed")
         for request in query.run():
             completion_list.append(self.assemble_file_info(request))

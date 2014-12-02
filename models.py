@@ -1,6 +1,8 @@
 from google.appengine.ext import db
 from google.appengine.ext import blobstore
 
+from const import *
+
 available_category_list = ['Public', 'Closed', 'Charity', 'For fun']
 challenges_states = ['ongoing', 'closed']
 verification_methods = ['video', 'image', 'both']
@@ -34,7 +36,13 @@ class ChallengeRequest(db.Model):
     inviter_id = db.StringProperty(required=True)
     challenge_id = db.IntegerProperty(required=True)
     invitee_id = db.StringProperty(required=True)
-    status = db.StringProperty(required=True, choices=['pending', 'accepted', 'rejected', 'verifying', 'verified', 'completed'])
+    status = db.StringProperty(required=True, choices=[
+        RequestStatus.PENDING,
+        RequestStatus.ACCEPTED,
+        RequestStatus.REJECTED,
+        RequestStatus.VERIFYING,
+        RequestStatus.VERIFIED,
+        RequestStatus.COMPLETED])
     file_info = blobstore.BlobReferenceProperty()
 
 

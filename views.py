@@ -118,7 +118,7 @@ class BaseHandler(webapp2.RequestHandler):
     def handle_exception(self, exception, debug):
         template = env.get_template('template/error.html')
         message = "An unexpected error has occurred."
-        context = {'redirect_url': webapp2.uri_for('home'),
+        context = {'redirect_url': webapp2.uri_for(RouteName.HOME),
                    'message': message}
         self.response.write(template.render(context))
 

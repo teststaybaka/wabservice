@@ -108,7 +108,6 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         sample_request.put()
 
         # accept the request
-        url = webapp2.uri_for(RouteName.ACCEPT, request_id=sample_request.key().id())
         self.get(
             '/requests/' + str(sample_request.key().id()) + '/accept')
 

@@ -1,4 +1,6 @@
-SECRET_KEY = 'efrghtrrouhsmvnmxdiosjdoifds68_=iooijgrdxuihbvc97yutcivbhugd479k'
+SECRET_KEY = 'efrghtrrouhsmvnmxdiosjdoifds68_=' \
+             'iooijgrdxuihbvc97yutcivbhugd479k'
+
 
 class RequestStatus(object):
     PENDING = 'pending'
@@ -7,6 +9,7 @@ class RequestStatus(object):
     VERIFYING = 'verifying'
     VERIFIED = 'verified'
     COMPLETED = 'completed'
+
 
 class RouteName(object):
     # account related

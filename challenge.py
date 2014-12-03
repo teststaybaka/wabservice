@@ -128,13 +128,18 @@ class Detail(BaseHandler):
 
         if challenge is not None:
             creator = db.GqlQuery("select * from User where id = :1", challenge.creator_id).get()
-            context = { 'creator': creator, 'now_category': now_category, 'challenge': challenge, 'intro_active': 1, 'dialog': self.message}
+            context = {'creator': creator, 'now_category': now_category,
+                       'challenge': challenge, 'intro_active': 1,
+                       'dialog': self.message}
 
             current_user = self.current_user
             if current_user:
-                # key = challengeKey(current_user.get('id'))
-                query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), current_user.get('id'))
-                request = query.get()
+                request_key = challenge_request_key()
+                request = ChallengeRequest.all().ancestor(request_key) \
+                    .filter("challenge_id =", int(challenge_id)) \
+                    .filter("invitee_id =", current_user.get('id')) \
+                    .get()
+
                 if request:
                     if request.status == RequestStatus.PENDING:
                         state = 5
@@ -286,36 +291,53 @@ class Completions(BaseHandler):
             tag = 'img'
         else:
             tag = 'video'
-            video_type = 'video/'+c_type[1]
-        return {'name':User.get_by_key_name(invitee_id).name, 'user_id':invitee_id, 'filename': request.file_info.filename, 'tag': tag, 'type': video_type, 'status':status, 'request_id':request.key().id()}
+            video_type = 'video/' + c_type[1]
+        return {
+            'name': User.get_by_key_name(invitee_id).name,
+            'user_id': invitee_id,
+            'filename': request.file_info.filename,
+            'tag': tag,
+            'type': video_type,
+            'status': status,
+            'request_id': request.key().id()}
 
     def get(self, challenge_id):
+        # TODO: replace hardcoded value with real data
         now_category = 'for fun'
-        # logging.info("%s %s", challenge_id, type(challenge_id))
-        completion_list = []
+
         query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
         challenge = query.get()
         creator = 0
         completion_list = []
+
+        request_key = challenge_request_key()
+
         if self.current_user and challenge.creator_id == self.current_user.get('id'):
             creator = 1
 
         if creator == 1:
-            query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "verifying")
+            query = ChallengeRequest.all().ancestor(request_key) \
+                .filter("challenge_id =", int(challenge_id))\
+                .filter("status =", RequestStatus.VERIFYING)
             for request in query.run():
                 completion_list.append(self.assemble_file_info(request))
 
-        query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "verified")
+        query = ChallengeRequest.all().ancestor(request_key) \
+                .filter("challenge_id =", int(challenge_id))\
+                .filter("status =", RequestStatus.VERIFIED)
         for request in query.run():
             completion_list.append(self.assemble_file_info(request))
 
-        query = db.GqlQuery("select * from ChallengeRequest where challenge_id = :1 and status = :2", int(challenge_id), "completed")
+        query = ChallengeRequest.all().ancestor(request_key) \
+                .filter("challenge_id =", int(challenge_id))\
+                .filter("status =", RequestStatus.COMPLETED)
         for request in query.run():
             completion_list.append(self.assemble_file_info(request))
 
         dialog = 'How is it going?'
-        # logging.info("challenge "+str(challenge.challenge_id))
-        context = { 'dialog': dialog, 'now_category': now_category, 'challenge': challenge, 'completion_list': completion_list, 'creator':creator}
+        context = {'dialog': dialog, 'now_category': now_category,
+                   'challenge': challenge,
+                   'completion_list': completion_list, 'creator': creator}
         template = env.get_template('template/completions.html')
         self.response.write(template.render(context))
 

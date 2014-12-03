@@ -8,7 +8,8 @@ cov.start()
 
 from testing.challenge_request_unit_tests import *
 
-suite = unittest.TestLoader().loadTestsFromTestCase(ChallengeRequestUnitTests)
+suite = unittest.TestLoader().loadTestsFromName(
+    'challenge_request_unit_tests')
 unittest.TextTestRunner(verbosity=2).run(suite)
 
 cov.stop()

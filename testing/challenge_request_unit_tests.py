@@ -5,6 +5,7 @@ from google.appengine.ext import testbed
 from webapp2_extras.securecookie import SecureCookieSerializer
 
 from challenge import *
+from const import *
 from urls import application
 
 
@@ -57,7 +58,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             inviter_id=self.test_user_id1,
             challenge_id=sample_challenge_id,
             invitee_id=self.test_user_id2,
-            status='verified',
+            status=RequestStatus.VERIFIED,
             parent=request_key)
         sample_request.put()
 
@@ -87,8 +88,8 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             long(sample_request.key().id()), request_key)
 
         self.assertIsNotNone(request)
-        self.assertEqual(sample_request.status, 'completed')
-        self.assertEqual(request.status, 'pending')
+        self.assertEqual(sample_request.status, RequestStatus.COMPLETED)
+        self.assertEqual(request.status, RequestStatus.PENDING)
 
     def test_invite_not_logged_in(self):
         response = self.app.post('/invite/1',
@@ -103,7 +104,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             inviter_id=self.test_user_id1,
             challenge_id=self.test_challenge_id1,
             invitee_id=self.test_user_id2,
-            status='pending',
+            status=RequestStatus.PENDING,
             parent=request_key)
         sample_request.put()
 
@@ -114,7 +115,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         # re-query the request to make sure we get the updated value and verify
         sample_request = ChallengeRequest.get_by_id(
             long(sample_request.key().id()), request_key)
-        self.assertTrue(sample_request.status == 'accepted')
+        self.assertTrue(sample_request.status == RequestStatus.ACCEPTED)
 
     # TEAM102014-30
     def test_accept_repeated(self):
@@ -124,7 +125,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             inviter_id=self.test_user_id1,
             challenge_id=self.test_challenge_id1,
             invitee_id=self.test_user_id2,
-            status='accepted',
+            status=RequestStatus.ACCEPTED,
             parent=request_key)
         sample_request.put()
 
@@ -135,7 +136,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         # re-query the request to make sure we get the updated value and verify
         sample_request = ChallengeRequest.get_by_id(
             long(sample_request.key().id()), request_key)
-        self.assertTrue(sample_request.status == 'accepted')
+        self.assertTrue(sample_request.status == RequestStatus.ACCEPTED)
 
     # TEAM102014-29
     def test_reject(self):
@@ -145,7 +146,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             inviter_id=self.test_user_id1,
             challenge_id=self.test_challenge_id1,
             invitee_id=self.test_user_id2,
-            status='pending',
+            status=RequestStatus.PENDING,
             parent=request_key)
         sample_request.put()
 
@@ -156,7 +157,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         # re-query the request to make sure we get the updated value and verify
         sample_request = ChallengeRequest.get_by_id(
             long(sample_request.key().id()), request_key)
-        self.assertTrue(sample_request.status == 'rejected')
+        self.assertTrue(sample_request.status == RequestStatus.REJECTED)
 
     # TEAM102014-30
     def test_reject_repeated(self):
@@ -166,7 +167,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             inviter_id=self.test_user_id1,
             challenge_id=self.test_challenge_id1,
             invitee_id=self.test_user_id2,
-            status='rejected',
+            status=RequestStatus.REJECTED,
             parent=request_key)
         sample_request.put()
 
@@ -177,7 +178,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         # re-query the request to make sure we get the updated value and verify
         sample_request = ChallengeRequest.get_by_id(
             long(sample_request.key().id()), request_key)
-        self.assertTrue(sample_request.status == 'rejected')
+        self.assertTrue(sample_request.status == RequestStatus.REJECTED)
 
     # TEAM102014-31
     def test_verify(self):
@@ -187,7 +188,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             inviter_id=self.test_user_id1,
             challenge_id=self.test_challenge_id1,
             invitee_id=self.test_user_id2,
-            status='pending',
+            status=RequestStatus.VERIFYING,
             parent=request_key)
         sample_request.put()
 
@@ -198,7 +199,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         # re-query the request to make sure we get the updated value and verify
         sample_request = ChallengeRequest.get_by_id(
             long(sample_request.key().id()), request_key)
-        self.assertTrue(sample_request.status == 'verified')
+        self.assertTrue(sample_request.status == RequestStatus.VERIFIED)
 
     # TEAM102014-31
     def test_retry(self):
@@ -208,7 +209,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             inviter_id=self.test_user_id1,
             challenge_id=self.test_challenge_id1,
             invitee_id=self.test_user_id2,
-            status='pending',
+            status=RequestStatus.VERIFYING,
             parent=request_key)
         sample_request.put()
 
@@ -219,7 +220,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         # re-query the request to make sure we get the updated value and verify
         sample_request = ChallengeRequest.get_by_id(
             long(sample_request.key().id()), request_key)
-        self.assertTrue(sample_request.status == 'pending')
+        self.assertTrue(sample_request.status == RequestStatus.PENDING)
 
     def tearDown(self):
         self.testbed.deactivate()

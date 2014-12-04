@@ -51,4 +51,4 @@ def verify_request(request_id):
 
 
 def retry_request(request_id):
-    return update_request_status(request_id, RequestStatus.PENDING)
+    return update_request_status(request_id, RequestStatus.ACCEPTED)

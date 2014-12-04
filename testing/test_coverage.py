@@ -6,10 +6,10 @@ cov = coverage(branch=True, source=[
     "../views.py"])
 cov.start()
 
-from testing.challenge_request_unit_tests import *
+from testing.unit_test_cases import *
 
 suite = unittest.TestLoader().loadTestsFromName(
-    'challenge_request_unit_tests')
+    'unit_test_cases')
 unittest.TextTestRunner(verbosity=2).run(suite)
 
 cov.stop()

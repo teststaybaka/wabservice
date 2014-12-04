@@ -8,6 +8,16 @@ challenges_states = ['ongoing', 'closed']
 verification_methods = ['video', 'image', 'both']
 
 
+class KeyStore(object):
+    @staticmethod
+    def challenge_request_key():
+        return db.Key.from_path('EntityType', 'ChallengeRequest')
+
+    @staticmethod
+    def challenge_key():
+        return db.Key.from_path('EntityType', 'Challenge')
+
+
 class User(db.Model):
     id = db.StringProperty(required=True)
     created = db.DateTimeProperty(auto_now_add=True)

@@ -1,13 +1,14 @@
+from google.appengine.ext.db import BadValueError
+
 from challenge_request_impl import *
 from views import *
 
-# def challengeKey(userid):
-#     return db.Key.from_path('Challenge', userid)
 
 class Create(BaseHandler):
     def get(self):
         if self.current_user:
-            context = {'dialog': 'You got a good idea?', 'now_category': 'create'}
+            context = {'dialog': 'You got a good idea?',
+                       'now_category': 'create'}
             template = env.get_template('template/create.html')
             self.response.write(template.render(context))
         else:
@@ -20,27 +21,40 @@ class Create(BaseHandler):
             current_user_id = current_user.get('id')
             if current_user_id:
                 # Naive creation with no scrutiny
-                challenge_ID_Factory = db.GqlQuery("select * from Challenge_ID_Factory").get()
-                # key = challengeKey(current_user.get('id'))
+                challenge_id_factory = \
+                    db.GqlQuery("select * from Challenge_ID_Factory").get()
                 user = User.all().filter('id = ', current_user_id).get()
                 if user:
-                    challenge = Challenge(
-                        challenge_id      = challenge_ID_Factory.get_id(),
-                        creator_id        = current_user_id,
-                        title             = self.request.get('title'),
-                        summary           = self.request.get('summary'),
-                        content           = self.request.get('content'),
-                        state             = 'ongoing',
-                        veri_method       = self.request.get('veri_method'),
-                        category          = [self.request.get('category')],
-                        completion_counts = 0,
-                        accept_counts     = 0,
-                        parent = user,
-                        )
+                    challenge_key = KeyStore.challenge_key()
+
+                    try:
+                        challenge = Challenge(
+                            challenge_id      = challenge_id_factory.get_id(),
+                            creator_id        = current_user_id,
+                            title             = self.request.get('title'),
+                            summary           = self.request.get('summary'),
+                            content           = self.request.get('content'),
+                            state             = 'ongoing',
+                            veri_method       = self.request.get('veri_method'),
+                            category          = [self.request.get('category')],
+                            completion_counts = 0,
+                            accept_counts     = 0,
+                            parent            = KeyStore.challenge_key())
+                    except BadValueError:
+                        message =\
+                            'Some required fields are missing or invalid.'
+                        context = {'dialog': message, 'now_category': 'create'}
+                        template = env.get_template('template/create.html')
+                        self.response.write(template.render(context))
+                        return
+
                     challenge.put()
-                    res = Challenge.all().ancestor(user).filter('challenge_id = ', challenge.challenge_id).get()
+                    res = Challenge.all().ancestor(KeyStore.challenge_key())\
+                        .filter('challenge_id = ', challenge.challenge_id)\
+                        .get()
                     if res:
-                        self.session['message'] = 'Successfully created challenge!'
+                        self.session['message'] = \
+                            'Successfully created challenge!'
                         self.redirect_to(RouteName.DETAIL,
                                          challenge_id=challenge.challenge_id)
                     else:
@@ -58,14 +72,14 @@ class Create(BaseHandler):
 
 class Edit(BaseHandler):
     def get(self, challenge_id):
-        logging.info(challenge_id)
-        query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        challenge = query.get()
+        challenge = Challenge.all().ancestor(KeyStore.challenge_key())\
+            .filter('challenge_id =', int(challenge_id)).get()
         if challenge is not None:
             current_user = self.current_user
             if current_user:
                 if challenge.creator_id != current_user.get('id'):
-                    self.session['message'] = 'Invalid operation!'
+                    self.session['message'] = \
+                        'Only the creator can edit this challenge.'
                     self.redirect_to(RouteName.DETAIL,
                                      challenge_id=challenge.challenge_id)
                 else:
@@ -77,46 +91,55 @@ class Edit(BaseHandler):
                 self.redirect_to(RouteName.DETAIL,
                                  challenge_id=challenge.challenge_id)
         else:
-            self.response.write('Challenge not found!')
-
+            self.session['message'] = 'Challenge not found.'
+            self.redirect_to(RouteName.HOME)
 
     def post(self, challenge_id):
-        query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        challenge = query.get()
+        challenge = Challenge.all().ancestor(KeyStore.challenge_key())\
+            .filter('challenge_id =', int(challenge_id)).get()
         if challenge is not None:
             current_user = self.current_user
             if current_user:
                 if challenge.creator_id != current_user.get('id'):
-                    self.session['message'] = 'Invalid operation!'
-                    self.redirect_to(RouteName.HOME)
+                    self.session['message'] = \
+                        'Only the creator can edit this challenge.'
+                    self.redirect_to(RouteName.DETAIL,
+                                     challenge_id=challenge.challenge_id)
                 else:
-                    challenge.title = self.request.get('title')
-                    challenge.summary = self.request.get('summary')
-                    challenge.content = self.request.get('content')
-                    challenge.veri_method = self.request.get('veri_method')
-                    challenge.category = [self.request.get('category')]
-                    challenge.put()
-                    # self.response.write('Challenge updated successfully! Go back to <a href="/challenge/' 
-                    #     + str(challenge.challenge_id) + '"> challenge </a>')
-                    res = Challenge.all().ancestor(challenge.parent()).filter('challenge_id = ', challenge.challenge_id).get();
+                    try:
+                        challenge.title = self.request.get('title')
+                        challenge.summary = self.request.get('summary')
+                        challenge.content = self.request.get('content')
+                        challenge.veri_method = self.request.get('veri_method')
+                        challenge.category = [self.request.get('category')]
+                        challenge.put()
+                    except BadValueError:
+                        context = {'challenge': challenge,
+                                   'dialog': 'Some required fields are '
+                                             'missing or invalid.'}
+                        template = env.get_template('template/edit.html')
+                        self.response.write(template.render(context))
+                        return
+
+                    res = Challenge.all().ancestor(KeyStore.challenge_key())\
+                        .filter('challenge_id = ', challenge.challenge_id)\
+                        .get()
                     url = webapp2.uri_for(RouteName.DETAIL,
                                           challenge_id=challenge.challenge_id)
-                    logging.info(res)
                     if res:
-                        self.session['message'] = 'Successfully updated challenge!'
+                        self.session['message'] = \
+                            'Successfully updated challenge!'
                         self.redirect(url)
                     else:
-                        self.session['message'] = 'Failed to update challenge.'
-                        self.redirect(url)
-
-                        # url = '/challenge/' + str(challenge.challenge_id)
-                        # self.session['message'] = 'Successfully edited challenge!'
-                        # self.redirect(url)
+                        self.session['message'] = \
+                            'Failed to update challenge.'
+                        self.redirect_to(RouteName.HOME)
             else:
                 self.session['message'] = 'You need to log in!'
                 self.redirect_to(RouteName.HOME)
         else:
-            self.response.write('Challenge not found!')
+            self.session['message'] = 'Challenge not found.'
+            self.redirect_to(RouteName.HOME)
 
 ############################ I am the Dividing Line ############################################
 
@@ -134,7 +157,7 @@ class Detail(BaseHandler):
 
             current_user = self.current_user
             if current_user:
-                request_key = challenge_request_key()
+                request_key = KeyStore.challenge_request_key()
                 request = ChallengeRequest.all().ancestor(request_key) \
                     .filter("challenge_id =", int(challenge_id)) \
                     .filter("invitee_id =", current_user.get('id')) \
@@ -314,7 +337,7 @@ class Completions(BaseHandler):
         creator = 0
         completion_list = []
 
-        request_key = challenge_request_key()
+        request_key = KeyStore.challenge_request_key()
 
         if self.current_user and challenge.creator_id == self.current_user.get('id'):
             creator = 1

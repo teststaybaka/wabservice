@@ -33,7 +33,7 @@ class Init(webapp2.RequestHandler):
         challenge2.category.append(available_category_list[2]);
         challenge2.put()
 
-        requestKey = challenge_request_key()
+        requestKey = KeyStore.challenge_request_key()
         # sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '10152423279882927', status = 'pending', parent = requestKey)
         # sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '1486877718253752', status = 'accepted', parent = requestKey)
         sampleRequest = ChallengeRequest(inviter_id = testUserId, challenge_id = 1, invitee_id = '741209259295825', status = 'accepted', parent = requestKey)

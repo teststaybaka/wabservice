@@ -11,7 +11,7 @@ from const import *
 from urls import application
 
 
-class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
+class BaseTestCase(unittest.TestCase, WebTestCase):
     """
     Base class of unit test cases for challenge request related classes
     and functions.
@@ -71,6 +71,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         self.test_user_4.put()
 
         self.challenge_ID_Factory = Challenge_ID_Factory(id_counter=0)
+        self.challenge_ID_Factory.put()
 
     def tearDown(self):
         self.testbed.deactivate()
@@ -115,7 +116,8 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
             content="This is the content of test challenge "
                     + str(challenge_id),
             state='ongoing',
-            veri_method='image')
+            veri_method='image',
+            parent=KeyStore.challenge_key())
         test_challenge.category.append(available_category_list[0])
         test_challenge.put()
         return test_challenge
@@ -145,7 +147,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
                 test_challenge = self.create_test_challenge(
                     self.test_user_id1, challenge_id)
 
-        request_key = challenge_request_key()
+        request_key = KeyStore.challenge_request_key()
         test_request = ChallengeRequest(
             inviter_id=inviter_id,
             challenge_id=test_challenge.challenge_id,
@@ -157,7 +159,139 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         return test_request
 
 
-class InviteUnitTests(ChallengeRequestUnitTests):
+class ChallengeTestCases(BaseTestCase):
+    # TEAM102014-28.1
+    def test_create(self):
+        headers = self.set_session_user(self.test_user_1)
+        self.get('/create', headers=headers)
+
+        self.app.post('/create',
+                      params={'title': 'title of test case test_create',
+                              'summary': 'summary of test case test_create',
+                              'content': 'content of test case test_create',
+                              'veri_method': 'image',
+                              'category': 'Public'},
+                      headers=headers)
+
+        # check if this challenge appears on the home page
+        response = self.get('/')
+        self.assertIn('title of test case test_create', response)
+
+        # query the datastore to check if this challenge has been created
+        challenge = Challenge.all().filter(
+            'title =', 'title of test case test_create').get()
+        self.assertIsNotNone(challenge)
+        self.assertEqual(
+            'content of test case test_create', challenge.content)
+
+    # TEAM102014-28.2
+    def test_create_missing_fields(self):
+        headers = self.set_session_user(self.test_user_1)
+        self.get('/create', headers=headers)
+
+        response = self.app.post('/create',
+                                 params={'title': '',
+                                         'summary': '',
+                                         'content': '',
+                                         'veri_method': '',
+                                         'category': ''},
+                                 headers=headers)
+
+        self.assertIn(
+            'Some required fields are missing or invalid.', response)
+
+    # TEAM102014-28.3
+    def test_create_not_logged_in(self):
+        response = self.get('/create')
+        self.assertRedirects(response)
+
+        response = self.app.post('/create')
+        self.assertRedirects(response)
+
+    def test_edit_creator(self):
+        headers = self.set_session_user(self.test_user_1)
+
+        test_challenge = self.create_test_challenge(
+            creator_id=self.test_user_id1)
+
+        response = self.get(
+            '/challenge/' + str(test_challenge.challenge_id) + '/edit',
+            headers=headers)
+        self.assertIn(test_challenge.title, response)
+
+        self.app.post(
+            '/challenge/' + str(test_challenge.challenge_id) + '/edit',
+            params={'title': 'new title of test challenge',
+                    'summary': 'new summary of test challenge',
+                    'content': 'new content of test challenge',
+                    'veri_method': 'video',
+                    'category': 'Public'},
+            headers=headers)
+
+        # visit the detail page of this challenge to check the updated values
+        response = self.get('/challenge/' + str(test_challenge.challenge_id))
+        self.assertIn('new title of test challenge', response)
+        self.assertIn('new content of test challenge', response)
+
+    def test_edit_not_creator(self):
+        headers = self.set_session_user(self.test_user_2)
+
+        test_challenge = self.create_test_challenge(
+            creator_id=self.test_user_id1)
+
+        response = self.get(
+            '/challenge/' + str(test_challenge.challenge_id) + '/edit',
+            headers=headers)
+        self.assertRedirects(response)
+
+        response = self.app.post(
+            '/challenge/' + str(test_challenge.challenge_id) + '/edit',
+            params={'title': 'new title of test challenge',
+                    'summary': 'new summary of test challenge',
+                    'content': 'new content of test challenge',
+                    'veri_method': 'video',
+                    'category': 'Public'},
+            headers=headers)
+        self.assertRedirects(response)
+
+    def test_edit_missing_fields(self):
+        headers = self.set_session_user(self.test_user_1)
+
+        test_challenge = self.create_test_challenge(
+            creator_id=self.test_user_id1)
+
+        response = self.app.post(
+            '/challenge/' + str(test_challenge.challenge_id) + '/edit',
+            params={'title': '',
+                    'summary': '',
+                    'content': '',
+                    'veri_method': 'video',
+                    'category': ''},
+            headers=headers)
+        self.assertIn(
+            'Some required fields are missing or invalid.', response)
+
+    def test_edit_challenge_not_found(self):
+        response = self.get('/challenge/1/edit')
+        self.assertRedirects(response)
+
+        response = self.app.post('/challenge/1/edit')
+        self.assertRedirects(response)
+
+    def test_edit_not_logged_in(self):
+        test_challenge = self.create_test_challenge(
+            creator_id=self.test_user_id1)
+
+        response = self.get(
+            '/challenge/' + str(test_challenge.challenge_id) + '/edit')
+        self.assertRedirects(response)
+
+        response = self.app.post(
+            '/challenge/' + str(test_challenge.challenge_id) + '/edit')
+        self.assertRedirects(response)
+
+
+class InviteTestCases(BaseTestCase):
     # TEAM102014-8
     def test_invite(self):
         test_challenge = self.create_test_challenge(
@@ -178,7 +312,7 @@ class InviteUnitTests(ChallengeRequestUnitTests):
                       headers=headers)
 
         # get the request created by the invite() call
-        request_key = challenge_request_key()
+        request_key = KeyStore.challenge_request_key()
         created_request = ChallengeRequest.all().ancestor(request_key) \
             .filter("challenge_id =", test_challenge.challenge_id) \
             .filter("inviter_id =", self.test_user_id2) \
@@ -204,7 +338,7 @@ class InviteUnitTests(ChallengeRequestUnitTests):
         self.assertRedirects(response)
 
 
-class ChallengeRequestActionsUnitTests(ChallengeRequestUnitTests):
+class ChallengeRequestTestCases(BaseTestCase):
     def template_test(self, action, status=None):
         """
         Test cases for all actions that can be performed on a request.
@@ -261,7 +395,7 @@ class ChallengeRequestActionsUnitTests(ChallengeRequestUnitTests):
         self.get('/requests/' + str(test_request.key().id()) + '/' + action)
 
         # re-query the request to make sure we get the updated value and verify
-        request_key = challenge_request_key()
+        request_key = KeyStore.challenge_request_key()
         test_request = ChallengeRequest.get_by_id(
             long(test_request.key().id()), request_key)
         self.assertTrue(test_request.status == end_status)
@@ -296,9 +430,9 @@ class ChallengeRequestActionsUnitTests(ChallengeRequestUnitTests):
         self.template_test(action='retry')
 
 
-class CompletionsUnitTests(ChallengeRequestUnitTests):
+class CompletionsTestCases(BaseTestCase):
     def setUp(self):
-        super(CompletionsUnitTests, self).setUp()
+        super(CompletionsTestCases, self).setUp()
 
         self.test_challenge = self.create_test_challenge(
             creator_id=self.test_user_id1)
@@ -377,4 +511,4 @@ class CompletionsUnitTests(ChallengeRequestUnitTests):
         self.assertIn(self.test_user_4.name, response)
 
     def tearDown(self):
-        super(CompletionsUnitTests, self).setUp()
+        super(CompletionsTestCases, self).setUp()

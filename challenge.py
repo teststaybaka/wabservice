@@ -151,7 +151,7 @@ class Detail(BaseHandler):
                         state = 8
                     elif request.status == RequestStatus.VERIFIED:
                         state = 3
-                        context['friend_list'] = self.getInvitableFriends(
+                        context['friend_list'] = self.get_invitable_friends(
                             current_user, challenge_id, challenge.creator_id)
                     else:
                         state = 7
@@ -162,7 +162,7 @@ class Detail(BaseHandler):
                 if current_user.get('id') == creator.id:
                     state = 2
                     context['editable'] = True
-                    context['friend_list'] = self.getInvitableFriends(
+                    context['friend_list'] = self.get_invitable_friends(
                         current_user, challenge_id, challenge.creator_id)
             else:
                 state = 10
@@ -183,22 +183,26 @@ class Detail(BaseHandler):
             # template = env.get_template('template/detail.html')
             # self.response.write(template.render(context))
 
-    def getInvitableFriends(self, current_user, challenge_id, creator_id):
+    def get_invitable_friends(self, current_user, challenge_id, creator_id):
         # get all friends from facebook API
-        graph = facebook.GraphAPI(current_user["access_token"])
-        profile = graph.get_object("me")
-        friends = graph.get_connections("me", "friends")
+        try:
+            graph = facebook.GraphAPI(current_user["access_token"])
+            profile = graph.get_object("me")
+            friends = graph.get_connections("me", "friends")
+        except:
+            return []
 
         #exclude friends who have been invited
-        invitableFriList = []
+        invitable_friend_list = []
         for friend in friends['data']:
-            query = db.GqlQuery("select * from ChallengeRequest where challenge_id=:1 AND invitee_id=:2",
+            query = db.GqlQuery("select * from ChallengeRequest where "
+                                "challenge_id=:1 AND invitee_id=:2",
                                 int(challenge_id),
                                 friend['id'])
             if query.get() is None and friend['id'] != creator_id:
-                invitableFriList.append((friend['name'], friend['id']))
+                invitable_friend_list.append((friend['name'], friend['id']))
 
-        return invitableFriList
+        return invitable_friend_list
 
 
 class Invite(BaseHandler):

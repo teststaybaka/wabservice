@@ -157,7 +157,7 @@ class ChallengeRequestUnitTests(unittest.TestCase, WebTestCase):
         return test_request
 
 
-class ChallengeRequestActionsUnitTests(ChallengeRequestUnitTests):
+class InviteUnitTests(ChallengeRequestUnitTests):
     # TEAM102014-8
     def test_invite(self):
         test_challenge = self.create_test_challenge(
@@ -203,91 +203,97 @@ class ChallengeRequestActionsUnitTests(ChallengeRequestUnitTests):
                                 params={'friend1': self.test_user_id1})
         self.assertRedirects(response)
 
-    # TEAM102014-29
-    def test_accept(self):
+
+class ChallengeRequestActionsUnitTests(ChallengeRequestUnitTests):
+    def template_test(self, action, status=None):
+        """
+        Test cases for all actions that can be performed on a request.
+
+        :param action: the type of action to be done on the request
+        :param status: the initial status of the request. if None, it will be
+        RequestStatus.PENDING as default
+        """
+        # set the pre/post-conditions for the specified action
+        start_status = RequestStatus.PENDING
+        start_string = ""
+        end_status = RequestStatus.PENDING
+        end_string = ""
+
+        if action == 'accept':
+            end_string = "Upload an image or video to verify your success."
+            end_status = RequestStatus.ACCEPTED
+        elif action == 'reject':
+            end_string = "Challenge rejected. Reconsider Taking the challenge!"
+            end_status = RequestStatus.REJECTED
+        elif action == 'confirm':
+            end_string = "Congratulation! You have completed this challenge."
+            start_status = RequestStatus.VERIFYING
+            end_status = RequestStatus.VERIFIED
+        elif action == 'retry':
+            end_string = "Upload an image or video to verify your success."
+            start_status = RequestStatus.VERIFYING
+            end_status = RequestStatus.ACCEPTED
+
+        if status is not None:
+            start_status = status
+
+        if start_status == RequestStatus.PENDING:
+            start_string = "You have been challenged. Let's do it!"
+        elif start_status == RequestStatus.ACCEPTED:
+            start_string = "Upload an image or video to verify your success."
+        elif start_status == RequestStatus.REJECTED:
+            start_string = \
+                "Challenge rejected. Reconsider Taking the challenge!"
+        elif start_status == RequestStatus.VERIFYING:
+            start_string = "Your application is waiting for verification."
+
         test_request = self.create_test_request(
             inviter_id=self.test_user_id1,
-            invitee_id=self.test_user_id2)
+            invitee_id=self.test_user_id2,
+            status=start_status)
 
-        self.get('/requests/' + str(test_request.key().id()) + '/accept')
+        headers = self.set_session_user(self.test_user_2)
+        # visit the challenge detail page
+        response = self.get('/challenge/' + str(test_request.challenge_id),
+                            headers=headers)
+        self.assertIn(start_string, response)
+
+        self.get('/requests/' + str(test_request.key().id()) + '/' + action)
 
         # re-query the request to make sure we get the updated value and verify
         request_key = challenge_request_key()
         test_request = ChallengeRequest.get_by_id(
             long(test_request.key().id()), request_key)
-        self.assertTrue(test_request.status == RequestStatus.ACCEPTED)
+        self.assertTrue(test_request.status == end_status)
+
+        # re-visit the challenge detail page to see if it is updated correctly
+        response = self.get('/challenge/' + str(test_request.challenge_id),
+                            headers=headers)
+        self.assertIn(end_string, response)
+
+    # TEAM102014-29
+    def test_accept(self):
+        self.template_test(action='accept')
 
     # TEAM102014-30
     def test_accept_repeated(self):
-        test_request = self.create_test_request(
-            inviter_id=self.test_user_id1,
-            invitee_id=self.test_user_id2,
-            status=RequestStatus.ACCEPTED)
-
-        self.get('/requests/' + str(test_request.key().id()) + '/accept')
-
-        # re-query the request to make sure we get the updated value and verify
-        request_key = challenge_request_key()
-        test_request = ChallengeRequest.get_by_id(
-            long(test_request.key().id()), request_key)
-        self.assertTrue(test_request.status == RequestStatus.ACCEPTED)
+        self.template_test(action='accept', status=RequestStatus.ACCEPTED)
 
     # TEAM102014-29
     def test_reject(self):
-        test_request = self.create_test_request(
-            inviter_id=self.test_user_id1,
-            invitee_id=self.test_user_id2)
-
-        self.get('/requests/' + str(test_request.key().id()) + '/reject')
-
-        # re-query the request to make sure we get the updated value and verify
-        request_key = challenge_request_key()
-        test_request = ChallengeRequest.get_by_id(
-            long(test_request.key().id()), request_key)
-        self.assertTrue(test_request.status == RequestStatus.REJECTED)
+        self.template_test(action='reject')
 
     # TEAM102014-30
     def test_reject_repeated(self):
-        test_request = self.create_test_request(
-            inviter_id=self.test_user_id1,
-            invitee_id=self.test_user_id2,
-            status=RequestStatus.REJECTED)
-
-        self.get('/requests/' + str(test_request.key().id()) + '/reject')
-
-        # re-query the request to make sure we get the updated value and verify
-        request_key = challenge_request_key()
-        test_request = ChallengeRequest.get_by_id(
-            long(test_request.key().id()), request_key)
-        self.assertTrue(test_request.status == RequestStatus.REJECTED)
+        self.template_test(action='reject', status=RequestStatus.REJECTED)
 
     # TEAM102014-31
     def test_verify(self):
-        test_request = self.create_test_request(
-            inviter_id=self.test_user_id1,
-            invitee_id=self.test_user_id2)
-
-        self.get('/requests/' + str(test_request.key().id()) + '/confirm')
-
-        # re-query the request to make sure we get the updated value and verify
-        request_key = challenge_request_key()
-        test_request = ChallengeRequest.get_by_id(
-            long(test_request.key().id()), request_key)
-        self.assertTrue(test_request.status == RequestStatus.VERIFIED)
+        self.template_test(action='confirm')
 
     # TEAM102014-31
     def test_retry(self):
-        test_request = self.create_test_request(
-            inviter_id=self.test_user_id1,
-            invitee_id=self.test_user_id2)
-
-        self.get('/requests/' + str(test_request.key().id()) + '/retry')
-
-        # re-query the request to make sure we get the updated value and verify
-        request_key = challenge_request_key()
-        test_request = ChallengeRequest.get_by_id(
-            long(test_request.key().id()), request_key)
-        self.assertTrue(test_request.status == RequestStatus.ACCEPTED)
+        self.template_test(action='retry')
 
 
 class CompletionsUnitTests(ChallengeRequestUnitTests):

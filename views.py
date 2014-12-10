@@ -160,7 +160,7 @@ def gen_error_page(handler, message=None, redirect_url=None, exception=None):
         exc_desc_lines = \
             traceback.format_exception(exc_type, exc_value, exc_traceback)
     else:
-        exc_desc = None
+        exc_desc_lines = None
 
     context = {'redirect_url': redirect_url,
                'message': message,

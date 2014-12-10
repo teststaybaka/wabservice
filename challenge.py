@@ -1,4 +1,5 @@
 from google.appengine.ext.db import BadValueError
+from google.appengine.ext.webapp import blobstore_handlers
 
 from challenge_request_impl import *
 from views import *

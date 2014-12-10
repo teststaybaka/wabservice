@@ -68,3 +68,5 @@ class StrConst(object):
     INVITE_SUCCESS = "Invitation sent to the selected friends."
     INVITE_FAILED = "Failed to invite the selected friend."
     INVITE_NOT_AUTHORIZED = "You cannot invite others to this challenge."
+    REQUEST_NOT_FOUND = "Challenge request not found."
+    REQUEST_NOT_AUTHORIZED = "You are not allowed to {0} this request."

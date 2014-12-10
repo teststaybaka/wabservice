@@ -400,8 +400,8 @@ class InviteTestCases(BaseTestCase):
 
         # test_user_2 now invites test_user_3 to the same challenge
         response = self.app.post('/invite/' + str(test_challenge.challenge_id),
-                      params={'friend1': self.test_user_id3},
-                      headers=headers)
+                                 params={'friend1': self.test_user_id3},
+                                 headers=headers)
         self.assertIn(StrConst.INVITE_NOT_AUTHORIZED, response)
 
     def test_invite_challenge_not_found(self):
@@ -436,13 +436,16 @@ class ChallengeRequestTestCases(BaseTestCase):
         start_string = ""
         end_status = RequestStatus.PENDING
         end_string = ""
+        test_headers = self.set_session_user(self.test_user_1)
 
         if action == 'accept':
             end_string = "Upload an image or video to verify your success."
             end_status = RequestStatus.ACCEPTED
+            test_headers = self.set_session_user(self.test_user_2)
         elif action == 'reject':
             end_string = "Challenge rejected. Reconsider Taking the challenge!"
             end_status = RequestStatus.REJECTED
+            test_headers = self.set_session_user(self.test_user_2)
         elif action == 'confirm':
             end_string = "Congratulation! You have completed this challenge."
             start_status = RequestStatus.VERIFYING
@@ -476,7 +479,8 @@ class ChallengeRequestTestCases(BaseTestCase):
                             headers=headers)
         self.assertIn(start_string, response)
 
-        self.get('/requests/' + str(test_request.key().id()) + '/' + action)
+        self.get('/requests/' + str(test_request.key().id()) + '/' + action,
+                 headers=test_headers)
 
         # re-query the request to make sure we get the updated value and verify
         request_key = KeyStore.challenge_request_key()
@@ -497,6 +501,26 @@ class ChallengeRequestTestCases(BaseTestCase):
     def test_accept_repeated(self):
         self.template_test(action='accept', status=RequestStatus.ACCEPTED)
 
+    def test_accept_not_logged_in(self):
+        response = self.get('/requests/1/accept')
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
+
+    def test_accept_not_authorized(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.PENDING)
+        headers = self.set_session_user(self.test_user_3)
+        response = self.get('/requests/' + str(test_request.key().id())
+                            + '/accept', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('accept'),
+                      response)
+
+    def test_accept_not_found(self):
+        headers = self.set_session_user(self.test_user_1)
+        response = self.get('/requests/1/accept', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_FOUND, response)
+
     # TEAM102014-29
     def test_reject(self):
         self.template_test(action='reject')
@@ -505,13 +529,73 @@ class ChallengeRequestTestCases(BaseTestCase):
     def test_reject_repeated(self):
         self.template_test(action='reject', status=RequestStatus.REJECTED)
 
+    def test_reject_not_logged_in(self):
+        response = self.get('/requests/1/reject')
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
+
+    def test_reject_not_authorized(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.PENDING)
+        headers = self.set_session_user(self.test_user_3)
+        response = self.get('/requests/' + str(test_request.key().id())
+                            + '/reject', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('reject'),
+                      response)
+
+    def test_reject_not_found(self):
+        headers = self.set_session_user(self.test_user_1)
+        response = self.get('/requests/1/reject', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_FOUND, response)
+
     # TEAM102014-31
     def test_verify(self):
         self.template_test(action='confirm')
 
+    def test_verify_not_logged_in(self):
+        response = self.get('/requests/1/confirm')
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
+
+    def test_verify_not_authorized(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.VERIFYING)
+        headers = self.set_session_user(self.test_user_2)
+        response = self.get('/requests/' + str(test_request.key().id())
+                            + '/confirm', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('verify'),
+                      response)
+
+    def test_verify_not_found(self):
+        headers = self.set_session_user(self.test_user_1)
+        response = self.get('/requests/1/confirm', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_FOUND, response)
+
     # TEAM102014-31
     def test_retry(self):
         self.template_test(action='retry')
+
+    def test_retry_not_logged_in(self):
+        response = self.get('/requests/1/retry')
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
+
+    def test_retry_not_authorized(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.VERIFYING)
+        headers = self.set_session_user(self.test_user_2)
+        response = self.get('/requests/' + str(test_request.key().id())
+                            + '/retry', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('verify'),
+                      response)
+
+    def test_retry_not_found(self):
+        headers = self.set_session_user(self.test_user_1)
+        response = self.get('/requests/1/retry', headers=headers)
+        self.assertIn(StrConst.REQUEST_NOT_FOUND, response)
 
 
 class CompletionsTestCases(BaseTestCase):

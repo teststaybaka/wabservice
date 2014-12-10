@@ -184,6 +184,35 @@ class ChallengeTestCases(BaseTestCase):
         self.assertEqual(
             'content of test case test_create', challenge.content)
 
+    def test_create_two_challenges(self):
+        headers = self.set_session_user(self.test_user_1)
+        self.app.post('/create',
+                      params={'title': 'title of test case test_create',
+                              'summary': 'summary of test case test_create',
+                              'content': 'content of test case test_create',
+                              'veri_method': 'image',
+                              'category': 'Public'},
+                      headers=headers)
+
+        self.app.post('/create',
+                      params={'title': 'title 2 of test case test_create',
+                              'summary': 'summary 2 of test case test_create',
+                              'content': 'content 2 of test case test_create',
+                              'veri_method': 'image',
+                              'category': 'Public'},
+                      headers=headers)
+
+        # check if both two challenges appear on the home page
+        response = self.get('/')
+        self.assertIn('title of test case test_create', response)
+        self.assertIn('title 2 of test case test_create', response)
+
+        challenge1 = Challenge.all().filter(
+            'title =', 'title of test case test_create').get()
+        challenge2 = Challenge.all().filter(
+            'title =', 'title 2 of test case test_create').get()
+        self.assertNotEqual(challenge1.challenge_id, challenge2.challenge_id)
+
     # TEAM102014-28.2
     def test_create_missing_fields(self):
         headers = self.set_session_user(self.test_user_1)

@@ -3,7 +3,8 @@ from coverage import coverage
 cov = coverage(branch=True, source=[
     "../challenge_request.py",
     "../challenge.py",
-    "../views.py"])
+    "../views.py",
+    "../db_utils.py"])
 cov.start()
 
 from testing.unit_test_cases import *

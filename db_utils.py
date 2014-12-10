@@ -16,9 +16,13 @@ class KeyStore(object):
 
 
 def get_id_factory():
+    factory_key = KeyStore.id_factory_key()
     challenge_id_factory = Challenge_ID_Factory.all().ancestor(
-        KeyStore.challenge_request_key()).get()
-    if challenge_id_factory is None:
-        challenge_id_factory = Challenge_ID_Factory(id_counter=0)
+        factory_key).get()
+    if challenge_id_factory is not None:
+        return challenge_id_factory
+    else:
+        challenge_id_factory = Challenge_ID_Factory(id_counter=0,
+                                                    parent=factory_key)
         challenge_id_factory.put()
-    return challenge_id_factory
+        return challenge_id_factory

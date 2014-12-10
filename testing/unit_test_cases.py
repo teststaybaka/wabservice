@@ -203,10 +203,10 @@ class ChallengeTestCases(BaseTestCase):
     # TEAM102014-28.3
     def test_create_not_logged_in(self):
         response = self.get('/create')
-        self.assertRedirects(response)
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
         response = self.app.post('/create')
-        self.assertRedirects(response)
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
     def test_edit_creator(self):
         headers = self.set_session_user(self.test_user_1)
@@ -273,10 +273,10 @@ class ChallengeTestCases(BaseTestCase):
 
     def test_edit_challenge_not_found(self):
         response = self.get('/challenge/1/edit')
-        self.assertRedirects(response)
+        self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
 
         response = self.app.post('/challenge/1/edit')
-        self.assertRedirects(response)
+        self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
 
     def test_edit_not_logged_in(self):
         test_challenge = self.create_test_challenge(
@@ -284,11 +284,23 @@ class ChallengeTestCases(BaseTestCase):
 
         response = self.get(
             '/challenge/' + str(test_challenge.challenge_id) + '/edit')
-        self.assertRedirects(response)
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
         response = self.app.post(
             '/challenge/' + str(test_challenge.challenge_id) + '/edit')
-        self.assertRedirects(response)
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
+
+    def test_detail_challenge_not_found(self):
+        response = self.get('/challenge/1')
+        self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
+
+    def test_detail_not_logged_in(self):
+        test_challenge = self.create_test_challenge(
+            creator_id=self.test_user_id1)
+
+        response = self.get(
+            '/challenge/' + str(test_challenge.challenge_id))
+        self.assertIn("Please login to perform any action.", response)
 
 
 class InviteTestCases(BaseTestCase):
@@ -327,10 +339,53 @@ class InviteTestCases(BaseTestCase):
         self.assertEqual(created_request.status, RequestStatus.PENDING)
         self.assertEqual(test_request.status, RequestStatus.COMPLETED)
 
+        response = self.get('/challenge/' + str(test_request.challenge_id),
+                            headers=headers)
+        self.assertIn('You may wanna take a look at how others did.', response)
+
+    def test_invite_creator(self):
+        test_challenge = self.create_test_challenge(
+            creator_id=self.test_user_id1)
+
+        headers = self.set_session_user(self.test_user_1)
+        self.app.post('/invite/' + str(test_challenge.challenge_id),
+                      params={'friend1': self.test_user_id2},
+                      headers=headers)
+
+        # get the request created by the invite() call
+        request_key = KeyStore.challenge_request_key()
+        created_request = ChallengeRequest.all().ancestor(request_key) \
+            .filter("challenge_id =", test_challenge.challenge_id) \
+            .filter("inviter_id =", self.test_user_id1) \
+            .filter("invitee_id =", self.test_user_id2) \
+            .get()
+
+        self.assertIsNotNone(created_request)
+        self.assertEqual(created_request.status, RequestStatus.PENDING)
+
+    def test_invite_not_authorized(self):
+        test_challenge = self.create_test_challenge(
+            creator_id=self.test_user_id1)
+
+        headers = self.set_session_user(self.test_user_2)
+
+        # test_user_2 now invites test_user_3 to the same challenge
+        response = self.app.post('/invite/' + str(test_challenge.challenge_id),
+                      params={'friend1': self.test_user_id3},
+                      headers=headers)
+        self.assertIn(StrConst.INVITE_NOT_AUTHORIZED, response)
+
+    def test_invite_challenge_not_found(self):
+        headers = self.set_session_user(self.test_user_1)
+        response = self.app.post('/invite/1',
+                                 params={'friend1': self.test_user_id1},
+                                 headers=headers)
+        self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
+
     def test_invite_not_logged_in(self):
         response = self.app.post('/invite/1',
                                  params={'friend1': self.test_user_id1})
-        self.assertRedirects(response)
+        self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
     def test_invite_get(self):
         response = self.app.get('/invite/1',

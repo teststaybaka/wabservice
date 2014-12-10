@@ -1,6 +1,6 @@
 import webapp2
 
-import views, account, challenge, admin
+import views, account, challenge, admin, challenge_request
 from const import *
 
 
@@ -25,8 +25,6 @@ application = webapp2.WSGIApplication(
                       challenge.Detail, name=RouteName.DETAIL),
         webapp2.Route(r'/challenge/<challenge_id:\d+>/edit',
                       challenge.Edit, name=RouteName.EDIT),
-        webapp2.Route(r'/invite/<challenge_id:\d+>',
-                      challenge.Invite, name=RouteName.INVITE),
         webapp2.Route(r'/challenge/<challenge_id:\d+>/upload',
                       challenge.Upload, name=RouteName.UPLOAD),
         webapp2.Route(r'/challenge/<challenge_id:\d+>/getUploadURL',
@@ -39,14 +37,16 @@ application = webapp2.WSGIApplication(
                       views.Discussions, name=RouteName.DISCUSSIONS),
 
         # challenge request related
+        webapp2.Route(r'/invite/<challenge_id:\d+>',
+                      challenge_request.Invite, name=RouteName.INVITE),
         webapp2.Route(r'/requests/<request_id:\d+>/accept',
-                      challenge.Accept, name=RouteName.ACCEPT),
+                      challenge_request.Accept, name=RouteName.ACCEPT),
         webapp2.Route(r'/requests/<request_id:\d+>/reject',
-                      challenge.Reject, name=RouteName.REJECT),
+                      challenge_request.Reject, name=RouteName.REJECT),
         webapp2.Route(r'/requests/<request_id:\d+>/confirm',
-                      challenge.Verify, name=RouteName.CONFIRM),
+                      challenge_request.Verify, name=RouteName.CONFIRM),
         webapp2.Route(r'/requests/<request_id:\d+>/retry',
-                      challenge.Retry, name=RouteName.RETRY),
+                      challenge_request.Retry, name=RouteName.RETRY),
 
         # misc
         webapp2.Route(r'/error', name='error'),

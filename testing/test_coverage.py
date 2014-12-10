@@ -1,7 +1,7 @@
 from coverage import coverage
 
 cov = coverage(branch=True, source=[
-    "../challenge_request_impl.py",
+    "../challenge_request.py",
     "../challenge.py",
     "../views.py"])
 cov.start()

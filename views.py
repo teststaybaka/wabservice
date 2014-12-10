@@ -113,12 +113,39 @@ class BaseHandler(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def handle_exception(self, exception, debug):
-        gen_error_page(self, exception=exception)
+        self.gen_error_page(exception=exception)
+
+    def gen_error_page(self, message=None, redirect_url=None, exception=None):
+        template = env.get_template('template/error.html')
+
+        if message is None:
+            message = StrConst.DEFAULT_ERROR_MSG
+        if redirect_url is None:
+            redirect_url = webapp2.uri_for(RouteName.HOME)
+        if exception is not None:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_desc_lines = \
+                traceback.format_exception(exc_type, exc_value, exc_traceback)
+        else:
+            exc_desc_lines = None
+
+        context = {'redirect_url': redirect_url,
+                   'message': message,
+                   'exc_desc': exc_desc_lines}
+        self.response.write(template.render(context))
+
+    def check_login_status(self):
+        current_user = self.current_user
+        if current_user:
+            current_user_id = current_user.get('id')
+
+        if (current_user is None) or (current_user_id is None):
+            self.gen_error_page(message=StrConst.NOT_LOGGED_IN)
+
+        return current_user
+
 
 class Home(BaseHandler):
-    def get_id_factory(self):
-        return db.GqlQuery("select * from Challenge_ID_Factory").get()
-
     def get_challenges(self, filters = None):
         query = db.GqlQuery("select * from Challenge")
         challenge_list = []
@@ -128,8 +155,6 @@ class Home(BaseHandler):
         return challenge_list
 
     def get(self):
-        challenge_ID_Factory = self.get_id_factory();
-
         now_category = 'for fun'
         category_list = available_category_list
         challenge_list = self.get_challenges()
@@ -146,23 +171,3 @@ class Discussions(webapp2.RequestHandler):
     def get(self, challenge_id):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
-
-
-def gen_error_page(handler, message=None, redirect_url=None, exception=None):
-    template = env.get_template('template/error.html')
-
-    if message is None:
-        message = "An unexpected error has occurred."
-    if redirect_url is None:
-        redirect_url = webapp2.uri_for(RouteName.HOME)
-    if exception is not None:
-        exc_type, exc_value, exc_traceback = sys.exc_info()
-        exc_desc_lines = \
-            traceback.format_exception(exc_type, exc_value, exc_traceback)
-    else:
-        exc_desc_lines = None
-
-    context = {'redirect_url': redirect_url,
-               'message': message,
-               'exc_desc': exc_desc_lines}
-    handler.response.write(template.render(context))

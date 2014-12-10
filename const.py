@@ -13,6 +13,19 @@ class RequestStatus(object):
     COMPLETED = 'completed'
 
 
+class DetailState(object):
+    CLOSED = 1
+    CREATOR = 2
+    VERIFIED = 3
+    ACCEPTED = 4
+    PENDING = 5
+    REJECTED = 6
+    COMPLETED = 7
+    VERIFYING = 8
+    NOT_INVITED = 9
+    NOT_LOGGED_IN = 10
+
+
 class RouteName(object):
     # account related
     HOME = 'home'
@@ -43,3 +56,15 @@ class RouteName(object):
     TEST = 'test'
     INIT = 'init'
     ADD_NEW_ENTITY = 'add_new_entity'
+
+
+class StrConst(object):
+    NOT_LOGGED_IN = "Please login in first."
+    DEFAULT_ERROR_MSG = "An unexpected error has occurred."
+    CHALLENGE_CREATE_SUCCESS = "Successfully created challenge!"
+    CHALLENGE_CREATE_FAIL = "Failed to create challenge."
+    CHALLENGE_NOT_FOUND = "Challenge not found."
+    CHALLENGE_UPDATED = "Challenge Updated!"
+    INVITE_SUCCESS = "Invitation sent to the selected friends."
+    INVITE_FAILED = "Failed to invite the selected friend."
+    INVITE_NOT_AUTHORIZED = "You cannot invite others to this challenge."

@@ -2,11 +2,25 @@
 {% block head %}
 {{ super() }}
 <meta http-equiv="refresh" content="3; url={{ redirect_url }}">
+<link href="/static/error.css" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block body %}
-<div class="container" id="body-container">
-    {{ message }}
-    You will be redirected to the previous page after 3 seconds.
+<div id="error-container">
+    <p id="oops">OOPS</p>
+    <p>{{ message }}</p>
+    <p>You will be redirected to the previous page after 3 seconds.</p>
+    <br/>
+    {% if exc_desc %}
+        <div id="exc">
+            <input class="toggle-box" id="exc-toggle" type="checkbox" >
+            <label for="exc-toggle">Exception details</label>
+            <div>
+                {% for line in exc_desc %}
+                {{ line }}<br/>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

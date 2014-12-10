@@ -1,19 +1,16 @@
-import cgi
-import urllib
-import os
-import logging
-import jinja2
-import webapp2
 import facebook
-from webapp2_extras import sessions
+import jinja2
+import logging
+import os
+import sys
+import traceback
+import webapp2
+
 from jinja2 import Undefined
-from google.appengine.ext import db
-from google.appengine.ext.webapp import blobstore_handlers
+from webapp2_extras import sessions
 
 from models import *
 
-FACEBOOK_APP_ID = '797761393603664'
-FACEBOOK_APP_SECRET = 'd95c7c45b86a757f44b7c4991a0b7f47'
 
 class SilentUndefined(Undefined):
     '''
@@ -116,36 +113,9 @@ class BaseHandler(webapp2.RequestHandler):
         return self.session_store.get_session()
 
     def handle_exception(self, exception, debug):
-        template = env.get_template('template/error.html')
-        message = "An unexpected error has occurred."
-        context = {'redirect_url': webapp2.uri_for(RouteName.HOME),
-                   'message': message}
-        self.response.write(template.render(context))
-
+        gen_error_page(self, exception=exception)
 
 class Home(BaseHandler):
-    def one_time_runing(self, challenge_ID_Factory):
-        # challenge_ID_Factory = Challenge_ID_Factory(id_counter=0);
-        # challenge_ID_Factory.put();
-
-        # query = db.GqlQuery("select * from Challenge")
-        # for entry in query.run():
-        #     entry.delete()
-
-        # challenge1 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
-        #     title='new challenge', summary="It's great", content='try it out!',
-        #     state='ongoing', veri_method='image');
-        # challenge1.category.append(available_category_list[0]);
-        # challenge1.put();
-        # challenge2 = Challenge(challenge_id=challenge_ID_Factory.get_id(), 
-        #     title='Another one?', summary="It's great", content='really!',
-        #     state='closed', veri_method='both');
-        # challenge2.category.append(available_category_list[3]);
-        # challenge2.put();
-        user = User.get_by_key_name(u'1498084320443459')
-        challenge = db.GqlQuery("select * from Challenge where challenge_id = :1 ", 1).get()
-        UserChallenge(user=user, challenge=challenge, relationship='accepted').put()
-
     def get_id_factory(self):
         return db.GqlQuery("select * from Challenge_ID_Factory").get()
 
@@ -159,16 +129,40 @@ class Home(BaseHandler):
 
     def get(self):
         challenge_ID_Factory = self.get_id_factory();
-        # logging.info("id counter: %d", challenge_ID_Factory.id_counter);
 
         now_category = 'for fun'
         category_list = available_category_list
         challenge_list = self.get_challenges()
-        context = { 'category_list': category_list, 'challenge_list': challenge_list, 'now_category': now_category, 'dialog':self.message}
+        context = {
+            'category_list': category_list,
+            'challenge_list': challenge_list,
+            'now_category': now_category,
+            'dialog': self.message}
         template = env.get_template('template/index.html')
         self.response.write(template.render(context))
+
 
 class Discussions(webapp2.RequestHandler):
     def get(self, challenge_id):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
+
+
+def gen_error_page(handler, message=None, redirect_url=None, exception=None):
+    template = env.get_template('template/error.html')
+
+    if message is None:
+        message = "An unexpected error has occurred."
+    if redirect_url is None:
+        redirect_url = webapp2.uri_for(RouteName.HOME)
+    if exception is not None:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        exc_desc_lines = \
+            traceback.format_exception(exc_type, exc_value, exc_traceback)
+    else:
+        exc_desc = None
+
+    context = {'redirect_url': redirect_url,
+               'message': message,
+               'exc_desc': exc_desc_lines}
+    handler.response.write(template.render(context))

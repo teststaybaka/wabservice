@@ -309,7 +309,8 @@ class Retry(BaseHandler):
 
 
 class Completions(BaseHandler):
-    def assemble_file_info(self, request):
+    @staticmethod
+    def assemble_file_info(request):
         invitee_id = request.invitee_id
         c_type = request.file_info.content_type.split('/')
         video_type = ''

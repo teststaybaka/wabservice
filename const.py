@@ -1,5 +1,7 @@
 SECRET_KEY = 'efrghtrrouhsmvnmxdiosjdoifds68_=' \
              'iooijgrdxuihbvc97yutcivbhugd479k'
+FACEBOOK_APP_ID = '797761393603664'
+FACEBOOK_APP_SECRET = 'd95c7c45b86a757f44b7c4991a0b7f47'
 
 
 class RequestStatus(object):

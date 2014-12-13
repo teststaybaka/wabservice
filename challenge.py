@@ -30,7 +30,6 @@ class Create(BaseHandler):
                     summary           = self.request.get('summary'),
                     content           = self.request.get('content'),
                     state             = 'ongoing',
-                    veri_method       = self.request.get('veri_method'),
                     category          = self.request.get_all('category'),
                     completion_counts = 0,
                     accept_counts     = 0,
@@ -91,7 +90,6 @@ class Edit(BaseHandler):
                         challenge.title = self.request.get('title')
                         challenge.summary = self.request.get('summary')
                         challenge.content = self.request.get('content')
-                        challenge.veri_method = self.request.get('veri_method')
                         challenge.category = [self.request.get('category')]
                         challenge.put()
                     except BadValueError:
@@ -194,14 +192,35 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
             self.response.write('Please select a file.')
             return
         blob_info = upload_files[0]
+        logging.info("upload content_type:"+blob_info.content_type)
+        logging.info("upload size:"+str(blob_info.size))
+        types = blob_info.content_type.split('/')
+        if types[0] != 'image' and types[0] != 'video':
+            blob_info.delete()
+            self.response.headers['Content-Type'] = 'text/plain'
+            self.response.write('File type error.')
+            return
+
+        if blob_info.size > 50*1000000:
+            blob_info.delete()
+            self.response.headers['Content-Type'] = 'text/plain'
+            self.response.write('File is too large.')
+            return
+
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
         request = query.get()
+        if not request:
+            blob_info.delete()
+            self.response.headers['Content-Type'] = 'text/plain'
+            self.response.write('Request doesn\'t exist.');
+            return
+
         if request.file_info != None:
             request.file_info.delete()
         request.file_info = blob_info
         request.status = RequestStatus.VERIFYING
         request.put()
-        logging.info('upload:'+blob_info.filename)
+        # logging.info('upload:'+blob_info.filename)
         # self.redirect_to('detail', challenge_id=challenge_id)
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Upload succeeded.')
@@ -239,6 +258,7 @@ class Completions(BaseHandler):
     def get(self, challenge_id):
         challenge = Challenge.all().ancestor(KeyStore.challenge_key())\
             .filter('challenge_id =', int(challenge_id)).get()
+        logging.info('challenge completions.'+str(challenge))
         if challenge is None:
             self.gen_error_page(message=StrConst.CHALLENGE_NOT_FOUND)
             return
@@ -282,7 +302,10 @@ class ServeFile(BaseHandler, blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, challenge_id, user_id):
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), user_id)
         request = query.get()
-        logging.info(request.file_info.filename)
-        # self.response.headers['Content-Type'] = 'image/jpeg'
-        # self.response.write(request.file_info)
-        self.send_blob(request.file_info)
+        if request is not None:
+            logging.info(request.file_info.filename)
+            # self.response.headers['Content-Type'] = 'image/jpeg'
+            # self.response.write(request.file_info)
+            self.send_blob(request.file_info)
+        else:
+            self.gen_error_page(message=StrConst.RESOURCE_NOT_FOUND)

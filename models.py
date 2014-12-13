@@ -22,7 +22,6 @@ class Challenge(db.Model):
     summary = db.StringProperty(required=True)
     content = db.TextProperty(required=True)
     state = db.StringProperty(required=True, choices=challenges_states)
-    veri_method = db.StringProperty(required=True, choices=verification_methods)
     category = db.StringListProperty()
     completion_counts = db.IntegerProperty()
     accept_counts = db.IntegerProperty()

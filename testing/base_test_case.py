@@ -114,7 +114,6 @@ class BaseTestCase(unittest.TestCase, WebTestCase):
             content="This is the content of test challenge "
                     + str(challenge_id),
             state='ongoing',
-            veri_method='image',
             parent=KeyStore.challenge_key())
         test_challenge.category.append(available_category_list[0])
         test_challenge.put()

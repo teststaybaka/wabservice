@@ -34,16 +34,6 @@
             <h3>Introduction:</h3>
             <p>{{ challenge.content }}</p>
         </div>
-        {% if challenge.annotation %}
-        <div id="annotation">
-            <h3>Annotation:</h3>
-            <p>{{ challenge.annotation }}</p>
-        </div>
-        {% endif %}
-        <div id="challenge-verification-method">
-            <h3>Verification method:</h3>
-            <p>{{ challenge.veri_method }}</p>
-        </div>
 
         <div id="interactive-block">
             {% if state == 1 %}

@@ -43,7 +43,7 @@ a.bar.active {
     width: 70%;
 }
 
- #challenge-description, #challenge-verification-method {
+ #challenge-description, #challenge-content {
     border-bottom: 1px solid rgb(200,200,200);
 }
 

@@ -19,24 +19,6 @@
             <p>Please give a detailed description of your challenge.</p>
             <textarea class="text" name="content" id="input-content" tabindex="3">{{ challenge.content }}</textarea>
         </div>
-        <div class="input veri_method" id="input-veri_method-div">
-            <p>How to verify someone's completion?</p>
-            <select name="veri_method" id="input-veri_method" tabindex="4">
-                {% if challenge.veri_method == "video" %}
-                    <option value"video" selected>video</option>
-                    <option value="image">image</option>
-                    <option value="both">both</option>
-                {% elif challenge.veri_method == "image" %}
-                    <option value"video">video</option>
-                    <option value="image" selected>image</option>
-                    <option value="both">both</option>
-                {% else %}
-                    <option value"video">video</option>
-                    <option value="image">image</option>
-                    <option value="both" selected>both</option>
-                {% endif %}
-            </select>
-        </div>
         <div class="input category" id="input-category-div">
             <p>What kind of challenge?</p>
             <input class="text" name="category" id="input-category" type="text" tabindex="5" value="{{ challenge.category[0] }}"/>

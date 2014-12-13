@@ -14,7 +14,6 @@ class ChallengeTestCases(BaseTestCase):
                       params={'title': 'title of test case test_create',
                               'summary': 'summary of test case test_create',
                               'content': 'content of test case test_create',
-                              'veri_method': 'image',
                               'category': 'Public'},
                       headers=headers)
 
@@ -35,7 +34,6 @@ class ChallengeTestCases(BaseTestCase):
                       params={'title': 'title of test case test_create',
                               'summary': 'summary of test case test_create',
                               'content': 'content of test case test_create',
-                              'veri_method': 'image',
                               'category': 'Public'},
                       headers=headers)
 
@@ -43,7 +41,6 @@ class ChallengeTestCases(BaseTestCase):
                       params={'title': 'title 2 of test case test_create',
                               'summary': 'summary 2 of test case test_create',
                               'content': 'content 2 of test case test_create',
-                              'veri_method': 'image',
                               'category': 'Public'},
                       headers=headers)
 
@@ -67,7 +64,6 @@ class ChallengeTestCases(BaseTestCase):
                                  params={'title': '',
                                          'summary': '',
                                          'content': '',
-                                         'veri_method': '',
                                          'category': ''},
                                  headers=headers)
 
@@ -98,7 +94,6 @@ class ChallengeTestCases(BaseTestCase):
             params={'title': 'new title of test challenge',
                     'summary': 'new summary of test challenge',
                     'content': 'new content of test challenge',
-                    'veri_method': 'video',
                     'category': 'Public'},
             headers=headers)
 
@@ -123,7 +118,6 @@ class ChallengeTestCases(BaseTestCase):
             params={'title': 'new title of test challenge',
                     'summary': 'new summary of test challenge',
                     'content': 'new content of test challenge',
-                    'veri_method': 'video',
                     'category': 'Public'},
             headers=headers)
         self.assertRedirects(response)
@@ -140,7 +134,6 @@ class ChallengeTestCases(BaseTestCase):
             params={'title': '',
                     'summary': '',
                     'content': '',
-                    'veri_method': 'video',
                     'category': ''},
             headers=headers)
         self.assertIn(

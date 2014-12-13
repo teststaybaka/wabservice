@@ -74,3 +74,5 @@ class StrConst(object):
     INVITE_NOT_AUTHORIZED = "You cannot invite others to this challenge."
     REQUEST_NOT_FOUND = "Challenge request not found."
     REQUEST_NOT_AUTHORIZED = "You are not allowed to {0} this request."
+    RESOURCE_NOT_FOUND = "Resource not found."
+    

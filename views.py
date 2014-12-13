@@ -29,6 +29,24 @@ env.globals = {
     'uri_for': webapp2.uri_for,
 }
 
+def gen_error_page(response, message=None, redirect_url=None, exception=None):
+    template = env.get_template('template/error.html')
+
+    if message is None:
+        message = StrConst.DEFAULT_ERROR_MSG
+    if redirect_url is None:
+        redirect_url = webapp2.uri_for(RouteName.HOME)
+    if exception is not None:
+        exc_type, exc_value, exc_traceback = sys.exc_info()
+        exc_desc_lines = \
+            traceback.format_exception(exc_type, exc_value, exc_traceback)
+    else:
+        exc_desc_lines = None
+
+    context = {'redirect_url': redirect_url,
+               'message': message,
+               'exc_desc': exc_desc_lines}
+    response.write(template.render(context))
 
 class BaseHandler(webapp2.RequestHandler):
     @property
@@ -45,7 +63,7 @@ class BaseHandler(webapp2.RequestHandler):
             words += ' Welcome! Here you can see challenges all over the world. Take one that is challenging you!'
             return words
 
-    def check_status(self):
+    def refresh_login_status(self):
         cookie = facebook.get_user_from_cookie(self.request.cookies,
                                                    FACEBOOK_APP_ID,
                                                    FACEBOOK_APP_SECRET)
@@ -117,23 +135,7 @@ class BaseHandler(webapp2.RequestHandler):
         self.gen_error_page(exception=exception)
 
     def gen_error_page(self, message=None, redirect_url=None, exception=None):
-        template = env.get_template('template/error.html')
-
-        if message is None:
-            message = StrConst.DEFAULT_ERROR_MSG
-        if redirect_url is None:
-            redirect_url = webapp2.uri_for(RouteName.HOME)
-        if exception is not None:
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            exc_desc_lines = \
-                traceback.format_exception(exc_type, exc_value, exc_traceback)
-        else:
-            exc_desc_lines = None
-
-        context = {'redirect_url': redirect_url,
-                   'message': message,
-                   'exc_desc': exc_desc_lines}
-        self.response.write(template.render(context))
+        gen_error_page(self.response, message, redirect_url, exception)
 
     def check_login_status(self):
         current_user = self.current_user

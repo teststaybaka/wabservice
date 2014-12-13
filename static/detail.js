@@ -1,13 +1,29 @@
 function getAction() {
     var file = document.getElementById("file-input").files[0];
     if (file) {
-        var url = window.location.href + "/getUploadURL"
-        xmlHttpRequest = createXmlHttpRequest();
+        if (file.size <= 0) {
+            var dialog = document.getElementById('bottom-dialog');
+            dialog.lastChild.nodeValue = 'File is invalid!';
+        } else if (file.size > 50*1000000) {
+            var dialog = document.getElementById('bottom-dialog');
+            dialog.lastChild.nodeValue = 'File is not supposed to be larger than 50MB!';
+        } else {
+            console.log('file size:'+file.size);
+            console.log('file type:'+file.type);
+            var types = file.type.split('/');
+            if (types[0] != 'image' && types[0] != 'video') {
+                var dialog = document.getElementById('bottom-dialog');
+                dialog.lastChild.nodeValue = 'Please select a video or an image.';
+            } else {
+                var url = window.location.href + "/getUploadURL"
+                xmlHttpRequest = createXmlHttpRequest();
 
-        xmlHttpRequest.onreadystatechange = uploadingFile;  
-        xmlHttpRequest.open("GET", url, false);  
+                xmlHttpRequest.onreadystatechange = uploadingFile;  
+                xmlHttpRequest.open("GET", url, false);  
 
-        xmlHttpRequest.send(null);
+                xmlHttpRequest.send(null);
+            }
+        }
     } else {
         var dialog = document.getElementById('bottom-dialog');
         dialog.lastChild.nodeValue = 'Please select a file to upload!';
@@ -33,10 +49,11 @@ function uploadProgress(evt) {
         }
     } else {
         p_bar.style.backgroundPosition = - p_bar.offsetWidth + "px";
+        var str = 'Check if file exists.'
         if (p_bar.lastChild) {
-            p_bar.lastChild.nodeValue = 'unable to compute';
+            p_bar.lastChild.nodeValue = str;
         } else {
-            var text = document.createTextNode('unable to compute');
+            var text = document.createTextNode(str);
             p_bar.appendChild(text);
         }
     }
@@ -46,10 +63,25 @@ function uploadComplete(evt) {
     var progress_bar = document.getElementById('progress-bar');
     var p_bar = progress_bar.lastChild;
     var p_text = p_bar.lastChild;
-    p_text.nodeValue = 'Completed!'
+    p_text.nodeValue = 'Completed!';
     p_bar.style.backgroundPosition = "0% 0%";
+    var dialog = document.getElementById('bottom-dialog');
+    dialog.lastChild.nodeValue = 'Upload completed!';
+    var fileInput = document.getElementById("file-input");
+    fileInput.value = '';
 }
 
+function uploadFailed(evt) {
+    var progress_bar = document.getElementById('progress-bar');
+    var p_bar = progress_bar.lastChild;
+    var p_text = p_bar.lastChild;
+    p_text.nodeValue = 'Failed!';
+    p_bar.style.backgroundPosition = "0% 0%";
+    var dialog = document.getElementById('bottom-dialog');
+    dialog.lastChild.nodeValue = 'Upload failed!';
+    var fileInput = document.getElementById("file-input");
+    fileInput.value = '';
+}
 
 function uploadingFile() {
     if(xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200){  
@@ -64,6 +96,7 @@ function uploadingFile() {
 
         xhr.upload.addEventListener("progress", uploadProgress, false);
         xhr.addEventListener("load", uploadComplete, false);
+        xhr.addEventListener("error", uploadFailed, false);
 
         xhr.open("POST", result, true);
         xhr.send(fd);

@@ -19,14 +19,6 @@
             <p>Please give a detailed description of your challenge.</p>
             <textarea class="text" name="content" id="input-content" tabindex="3">What's for, how to complete, why it's interesting, time limit, etc.</textarea>
         </div>
-        <div class="input veri_method" id="input-veri_method-div">
-            <p>How to verify someone's completion?</p>
-            <select name="veri_method" id="input-veri_method" tabindex="4">
-                <option value"video">video</option>
-                <option value="image">image</option>
-                <option value="both">both</option>
-            </select>
-        </div>
         <div class="input category" id="input-category-div">
             <p>What kind of challenge?</p>
             {% for category in category_list %}

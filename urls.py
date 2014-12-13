@@ -8,6 +8,14 @@ secret_key = SECRET_KEY
 session_arg = dict(secret_key=secret_key)  # , session_max_age=10)
 config = {'webapp2_extras.sessions': session_arg}
 
+def handle_404(request, response, exception):
+    views.gen_error_page(response, message='Oops! Page not found!')
+    response.set_status(404)
+
+def handle_500(request, response, exception):
+    views.gen_error_page(response, message='A server error occurred!')
+    response.set_status(500)
+
 application = webapp2.WSGIApplication(
     [
         # account related
@@ -56,3 +64,6 @@ application = webapp2.WSGIApplication(
                       name=RouteName.ADD_NEW_ENTITY),
         ], debug=True
     , config=config)
+
+application.error_handlers[404] = handle_404
+application.error_handlers[500] = handle_500

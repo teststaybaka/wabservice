@@ -29,7 +29,9 @@
         </div>
         <div class="input category" id="input-category-div">
             <p>What kind of challenge?</p>
-            <input class="text" name="category" id="input-category" type="text" tabindex="5"/>
+            {% for category in category_list %}
+            <input type="checkbox" name="category" value="{{category}}"/>{{category}}<br/>
+            {% endfor %}
         </div>
         <div class="input submit" id="submit-button-div">
             <input type="submit" value="Create" class="button">

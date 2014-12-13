@@ -9,7 +9,8 @@ class Create(BaseHandler):
     def get(self):
         current_user = self.check_login_status()
         if current_user:
-            context = {'dialog': 'You got a good idea?'}
+            context = {'dialog': 'You got a good idea?',
+                       'category_list': available_category_list}
             template = env.get_template('template/create.html')
             self.response.write(template.render(context))
 
@@ -30,14 +31,15 @@ class Create(BaseHandler):
                     content           = self.request.get('content'),
                     state             = 'ongoing',
                     veri_method       = self.request.get('veri_method'),
-                    category          = [self.request.get('category')],
+                    category          = self.request.get_all('category'),
                     completion_counts = 0,
                     accept_counts     = 0,
                     parent            = KeyStore.challenge_key())
             except BadValueError:
                 message = \
                     'Some required fields are missing or invalid.'
-                context = {'dialog': message}
+                context = {'dialog': message,
+                           'category_list': available_category_list}
                 template = env.get_template('template/create.html')
                 self.response.write(template.render(context))
                 return

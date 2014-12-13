@@ -2,13 +2,16 @@
 {% block head %}
 {{ super() }}
 <link href="/static/index.css" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"type="text/javascript" ></script>
 <script src="/static/index.js" language="JavaScript" type="text/javascript"></script>
 {% endblock %}
 
 {% block body %}
     <div id="present-category-and-search" class="container">
         <div id="present-category">
+            {% if now_category %}
             Now at >> {{ now_category }}
+            {% endif %}
         </div>
         <div id="search-box">
             <input class="text" id="search-field" type="text"/>

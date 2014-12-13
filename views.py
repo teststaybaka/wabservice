@@ -145,23 +145,29 @@ class BaseHandler(webapp2.RequestHandler):
         return current_user
 
 
-class Home(BaseHandler):
-    def get_challenges(self, keyword=None):
-        query = db.GqlQuery("select * from Challenge")
-        challenge_list = []
-        for entry in query.run():
-            if keyword is not None:
-                if keyword in entry.title:
-                    challenge_list.append(entry)
-            else:
-                challenge_list.append(entry)
-        return challenge_list
+def get_challenges(keyword=None, now_category=None):
+    query = db.GqlQuery("select * from Challenge")
+    challenge_list = []
+    for entry in query.run():
+        should_append = True
+        if keyword is not None:
+            if keyword not in entry.title:
+                should_append = False
+        if now_category is not None:
+            if now_category not in entry.category:
+                should_append = False
+        if should_append:
+            challenge_list.append(entry)
+    return challenge_list
 
+
+class Home(BaseHandler):
     def get(self):
-        now_category = 'for fun'
+        now_category = self.request.get("now_category", default_value=None)
+        keyword = self.request.get("keyword", default_value=None)
         category_list = available_category_list
-        keyword = self.request.get("keyword")
-        challenge_list = self.get_challenges(keyword=keyword)
+        challenge_list = get_challenges(keyword=keyword,
+                                        now_category=now_category)
         context = {
             'category_list': category_list,
             'challenge_list': challenge_list,

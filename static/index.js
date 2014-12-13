@@ -1,8 +1,13 @@
-window.onload = function(){
-    var btn = document.getElementById("search-button");
-    btn.addEventListener("click", function(){
-        var keyword = document.getElementById("search-field").value;
-        url = "?keyword=" + keyword;
-        window.location = url;
-    });
-};
+$(document).ready(function(){
+        $("#search-button").click(function(){
+            keyword = $("#search-field").val();
+            url = "?keyword=" + keyword;
+            window.location = url;
+        });
+
+        $(".per-category").click(function(){
+            url = "?now_category=" + $(this).text();
+            window.location = url;
+        });
+    }
+);

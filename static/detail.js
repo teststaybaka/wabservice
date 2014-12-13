@@ -24,8 +24,7 @@ function uploadProgress(evt) {
     }
     if (evt.lengthComputable) {
         var percentComplete = Math.round(evt.loaded * 100 / evt.total);
-        p_bar.style.backgroundPosition = - 350 + 350*percentComplete/100 + "px";
-        console.log("" - 350 + 350*percentComplete/100)
+        p_bar.style.backgroundPosition = - p_bar.offsetWidth + p_bar.offsetWidth*percentComplete/100 + "px";
         if (p_bar.lastChild) {
             p_bar.lastChild.nodeValue = percentComplete.toString() + '%';
         } else {
@@ -33,7 +32,7 @@ function uploadProgress(evt) {
             p_bar.appendChild(text);
         }
     } else {
-        p_bar.style.backgroundPosition = - 350 + "px";
+        p_bar.style.backgroundPosition = - p_bar.offsetWidth + "px";
         if (p_bar.lastChild) {
             p_bar.lastChild.nodeValue = 'unable to compute';
         } else {

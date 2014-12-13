@@ -156,7 +156,7 @@ def get_challenges(keyword=None, now_category=None):
         if keyword is not None:
             if keyword not in entry.title:
                 should_append = False
-        if now_category is not None:
+        if now_category is not None and now_category != 'All':
             if now_category not in entry.category:
                 should_append = False
         if should_append:

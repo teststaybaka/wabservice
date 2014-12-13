@@ -156,7 +156,7 @@ def get_challenges(keyword=None, now_category=None):
         if keyword is not None:
             if keyword not in entry.title:
                 should_append = False
-        if now_category is not None and now_category != 'All':
+        if now_category != 'All':
             if now_category not in entry.category:
                 should_append = False
         if should_append:
@@ -167,6 +167,8 @@ def get_challenges(keyword=None, now_category=None):
 class Home(BaseHandler):
     def get(self):
         now_category = self.request.get("now_category", default_value=None)
+        if now_category is None:
+            now_category = 'All'
         keyword = self.request.get("keyword", default_value=None)
         category_list = available_category_list
         challenge_list = get_challenges(keyword=keyword,

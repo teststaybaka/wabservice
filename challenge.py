@@ -186,7 +186,9 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
         if upload_files == []:
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.write('Please select a file.')
+            self.response.set_status(500)
             return
+
         blob_info = upload_files[0]
         logging.info("upload content_type:"+blob_info.content_type)
         logging.info("upload size:"+str(blob_info.size))
@@ -195,12 +197,14 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
             blob_info.delete()
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.write('File type error.')
+            self.response.set_status(500)
             return
 
         if blob_info.size > 50*1000000:
             blob_info.delete()
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.write('File is too large.')
+            self.response.set_status(500)
             return
 
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
@@ -208,7 +212,8 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
         if not request:
             blob_info.delete()
             self.response.headers['Content-Type'] = 'text/plain'
-            self.response.write('Request doesn\'t exist.');
+            self.response.write('Request doesn\'t exist.')
+            self.response.set_status(500)
             return
 
         if request.file_info != None:

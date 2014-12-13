@@ -4,9 +4,11 @@ function getAction() {
         if (file.size <= 0) {
             var dialog = document.getElementById('bottom-dialog');
             dialog.lastChild.nodeValue = 'File is invalid!';
+            dialog.setAttribute('class', 'dialog warning');
         } else if (file.size > 50*1000000) {
             var dialog = document.getElementById('bottom-dialog');
             dialog.lastChild.nodeValue = 'File is not supposed to be larger than 50MB!';
+            dialog.setAttribute('class', 'dialog warning');
         } else {
             console.log('file size:'+file.size);
             console.log('file type:'+file.type);
@@ -14,6 +16,7 @@ function getAction() {
             if (types[0] != 'image' && types[0] != 'video') {
                 var dialog = document.getElementById('bottom-dialog');
                 dialog.lastChild.nodeValue = 'Please select a video or an image.';
+                dialog.setAttribute('class', 'dialog warning');
             } else {
                 var url = window.location.href + "/getUploadURL"
                 xmlHttpRequest = createXmlHttpRequest();
@@ -27,6 +30,7 @@ function getAction() {
     } else {
         var dialog = document.getElementById('bottom-dialog');
         dialog.lastChild.nodeValue = 'Please select a file to upload!';
+        dialog.setAttribute('class', 'dialog warning');
     }
 }
 
@@ -67,6 +71,7 @@ function uploadComplete(evt) {
     p_bar.style.backgroundPosition = "0% 0%";
     var dialog = document.getElementById('bottom-dialog');
     dialog.lastChild.nodeValue = 'Upload completed!';
+    dialog.setAttribute('class', 'dialog');
     var fileInput = document.getElementById("file-input");
     fileInput.value = '';
 }
@@ -79,6 +84,7 @@ function uploadFailed(evt) {
     p_bar.style.backgroundPosition = "0% 0%";
     var dialog = document.getElementById('bottom-dialog');
     dialog.lastChild.nodeValue = 'Upload failed!';
+    dialog.setAttribute('class', 'dialog warning');
     var fileInput = document.getElementById("file-input");
     fileInput.value = '';
 }

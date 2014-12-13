@@ -99,7 +99,6 @@ class History(BaseHandler):
             self.redirect_to('home')
 
 class LoginStatusChange(BaseHandler):
-    #todo: rediret to the page before login
     def get(self, pre_page):
         self.check_status()
         if self.current_user:

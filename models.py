@@ -3,10 +3,6 @@ from google.appengine.ext import blobstore
 
 from const import *
 
-available_category_list = ['Public', 'Closed', 'Charity', 'For fun']
-challenges_states = ['ongoing', 'closed']
-verification_methods = ['video', 'image', 'both']
-
 
 class User(db.Model):
     id = db.StringProperty(required=True)

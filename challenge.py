@@ -19,9 +19,7 @@ class Create(BaseHandler):
         if current_user:
             current_user_id = current_user.get('id')
             challenge_id_factory = get_id_factory()
-            # Naive creation with no scrutiny
-            # TODO: input validation
-            user = User.all().filter('id = ', current_user_id).get()
+
             try:
                 challenge = Challenge(
                     challenge_id      = challenge_id_factory.get_id(),
@@ -188,12 +186,14 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
     def post(self, challenge_id):
         upload_files = self.get_uploads('file')  # 'file' is file upload field in the form
         if upload_files == []:
-            # self.session['message'] = 'Please select a file.'
-            # self.redirect_to('detail', challenge_id=challenge_id)
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.write('Please select a file.')
             return
         blob_info = upload_files[0]
+        # request = ChallengeRequest.all()\
+        #     .ancestor(KeyStore.challenge_request_key())\
+        #     .filter('challenge_id =', int(challenge_id))\
+        #     .filter('invitee_id =', self.current_user.get('id')).get()
         query = db.GqlQuery('select * from ChallengeRequest where challenge_id = :1 and invitee_id = :2', int(challenge_id), self.current_user.get('id'))
         request = query.get()
         if request.file_info != None:
@@ -209,8 +209,8 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
 
 class GetUploadURL(BaseHandler):
     def get(self, challenge_id):
-        upload_url = blobstore.create_upload_url('/challenge/'+challenge_id+'/upload')
-        # logging.info('GetUploadURL:'+upload_url)
+        upload_url = blobstore.create_upload_url('/challenge/' + challenge_id
+                                                 + '/upload')
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write(upload_url)
 

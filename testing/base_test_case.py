@@ -25,6 +25,7 @@ class BaseTestCase(unittest.TestCase, WebTestCase):
         self.testbed.init_app_identity_stub()
         self.testbed.init_datastore_v3_stub()
         self.testbed.init_files_stub()
+        self.testbed.init_blobstore_stub()
 
         # initializing test user data
         self.test_user_id1 = '1'

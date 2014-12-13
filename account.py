@@ -117,7 +117,7 @@ class History(BaseHandler):
 
 class LoginStatusChange(BaseHandler):
     def get(self, pre_page):
-        self.check_status()
+        self.refresh_login_status()
         if self.current_user:
             self.response.set_cookie('status', 'login', path='/')
         else:

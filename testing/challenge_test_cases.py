@@ -354,4 +354,4 @@ class CompletionsTestCases(BaseTestCase):
         self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
 
     def tearDown(self):
-        super(CompletionsTestCases, self).setUp()
+        super(CompletionsTestCases, self).tearDown()

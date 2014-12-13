@@ -19,9 +19,7 @@ class Create(BaseHandler):
         if current_user:
             current_user_id = current_user.get('id')
             challenge_id_factory = get_id_factory()
-            # Naive creation with no scrutiny
-            # TODO: input validation
-            user = User.all().filter('id = ', current_user_id).get()
+
             try:
                 challenge = Challenge(
                     challenge_id      = challenge_id_factory.get_id(),
@@ -186,8 +184,6 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
     def post(self, challenge_id):
         upload_files = self.get_uploads('file')  # 'file' is file upload field in the form
         if upload_files == []:
-            # self.session['message'] = 'Please select a file.'
-            # self.redirect_to('detail', challenge_id=challenge_id)
             self.response.headers['Content-Type'] = 'text/plain'
             self.response.write('Please select a file.')
             return
@@ -228,8 +224,8 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
 
 class GetUploadURL(BaseHandler):
     def get(self, challenge_id):
-        upload_url = blobstore.create_upload_url('/challenge/'+challenge_id+'/upload')
-        # logging.info('GetUploadURL:'+upload_url)
+        upload_url = blobstore.create_upload_url('/challenge/' + challenge_id
+                                                 + '/upload')
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write(upload_url)
 

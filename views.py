@@ -29,6 +29,7 @@ env.globals = {
     'uri_for': webapp2.uri_for,
 }
 
+
 class BaseHandler(webapp2.RequestHandler):
     @property
     def message(self):

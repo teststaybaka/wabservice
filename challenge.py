@@ -9,8 +9,7 @@ class Create(BaseHandler):
     def get(self):
         current_user = self.check_login_status()
         if current_user:
-            context = {'dialog': 'You got a good idea?',
-                       'now_category': 'create'}
+            context = {'dialog': 'You got a good idea?'}
             template = env.get_template('template/create.html')
             self.response.write(template.render(context))
 
@@ -38,7 +37,7 @@ class Create(BaseHandler):
             except BadValueError:
                 message = \
                     'Some required fields are missing or invalid.'
-                context = {'dialog': message, 'now_category': 'create'}
+                context = {'dialog': message}
                 template = env.get_template('template/create.html')
                 self.response.write(template.render(context))
                 return
@@ -110,15 +109,14 @@ class Edit(BaseHandler):
 
 class Detail(BaseHandler):
     def get(self, challenge_id):
-        # TODO: remove or change to dynamic value
-        now_category = 'for fun'
         challenge = Challenge.all().filter(
             "challenge_id =", int(challenge_id)).get()
         if challenge is not None:
             creator = db.GqlQuery("select * from User where id = :1",
                                   challenge.creator_id).get()
-            context = {'creator': creator, 'now_category': now_category,
-                       'challenge': challenge, 'intro_active': 1,
+            context = {'creator': creator,
+                       'challenge': challenge,
+                       'intro_active': 1,
                        'dialog': self.message}
 
             current_user = self.current_user
@@ -237,9 +235,6 @@ class Completions(BaseHandler):
             'request_id': request.key().id()}
 
     def get(self, challenge_id):
-        # TODO: replace hardcoded value with real data
-        now_category = 'for fun'
-
         challenge = Challenge.all().ancestor(KeyStore.challenge_key())\
             .filter('challenge_id =', int(challenge_id)).get()
         if challenge is None:
@@ -273,9 +268,10 @@ class Completions(BaseHandler):
             completion_list.append(self.assemble_file_info(request))
 
         dialog = 'How is it going?'
-        context = {'dialog': dialog, 'now_category': now_category,
+        context = {'dialog': dialog,
                    'challenge': challenge,
-                   'completion_list': completion_list, 'creator': creator}
+                   'completion_list': completion_list,
+                   'creator': creator}
         template = env.get_template('template/completions.html')
         self.response.write(template.render(context))
 

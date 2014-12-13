@@ -6,21 +6,19 @@
 {% endblock %}
 
 {% block body %}
-<div id="error-container">
-    <p id="oops">OOPS</p>
-    <p>{{ message }}</p>
-    <p>You will be redirected to the previous page after 3 seconds.</p>
-    <br/>
-    {% if exc_desc %}
-        <div id="exc">
-            <input class="toggle-box" id="exc-toggle" type="checkbox" >
-            <label for="exc-toggle">Exception details</label>
-            <div>
-                {% for line in exc_desc %}
-                {{ line }}<br/>
-                {% endfor %}
-            </div>
-        </div>
-    {% endif %}
+<p id="oops">OOPS</p>
+<p>{{ message }}</p>
+<p>You will be redirected to the previous page after 3 seconds.</p>
+<br/>
+{% if exc_desc %}
+<div id="exc">
+    <input class="toggle-box" id="exc-toggle" type="checkbox" >
+    <label for="exc-toggle">Exception details</label>
+    <div>
+        {% for line in exc_desc %}
+        {{ line }}<br/>
+        {% endfor %}
+    </div>
 </div>
+{% endif %}
 {% endblock %}

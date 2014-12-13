@@ -1,11 +1,11 @@
-{% extends "template/index.html" %}
+{% extends "template/base.html" %}
 {% block head %}
 {{ super() }}
 <link href="/static/detail.css" rel="stylesheet" type="text/css">
 <script src="/static/detail.js" language="JavaScript" type="text/javascript"></script>
 {% endblock %}
 
-{% block challenge %}
+{% block body %}
 <div id="challenge-container">
     <div id="challenge-info-bar" class="container">
         <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" id="challenge-title">{{ challenge.title }}</a>
@@ -46,41 +46,41 @@
         </div>
 
         <div id="interactive-block">
-        {% if state == 1 %}
+            {% if state == 1 %}
             <p class="elaborate">This challenge has been closed.</span>
             <p class="suggestion">You may wanna take a look at other challenges.</p>
-        {% elif state == 2 %}
+            {% elif state == 2 %}
             <p class="elaborate">Your challenge is on the fly.</p>
             <p class="suggestion">You may look at new completing applications or invite more friends.</p>
             {% if friend_list[0] %}
-                <form action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" method="post">
-                    <select name="friend1" id="friend" tabindex="4">
-                        {% for friend in friend_list %}
-                            <option value="{{friend[1]}}"}>{{friend[0]}}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="submit" value="Invite" class="button">
-                </form>
+            <form action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" method="post">
+                <select name="friend1" id="friend" tabindex="4">
+                    {% for friend in friend_list %}
+                    <option value="{{friend[1]}}"}>{{friend[0]}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Invite" class="button">
+            </form>
             {% else %}
-                <p class="elaborate">No friend available to invite.</p>
+            <p class="elaborate">No friend available to invite.</p>
             {% endif %}
             <button class="others-work">Completions</button>
-        {% elif state == 3%}
+            {% elif state == 3%}
             <p class="elaborate">Congratulation! You have completed this challenge.</p>
             <p class="suggestion">It's time to challenge your friends!</p>
             {% if friend_list[0] %}
-                <form action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" method="post">
-                    <select name="friend1" id="friend" tabindex="4">
-                        {% for friend in friend_list %}
-                            <option value="{{friend[1]}}"}>{{friend[0]}}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="submit" value="Invite" class="button">
-                </form>
+            <form action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" method="post">
+                <select name="friend1" id="friend" tabindex="4">
+                    {% for friend in friend_list %}
+                    <option value="{{friend[1]}}"}>{{friend[0]}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Invite" class="button">
+            </form>
             {% else %}
-                <p class="elaborate">No friend available to invite.</p>
+            <p class="elaborate">No friend available to invite.</p>
             {% endif %}
-        {% elif state == 4 %}
+            {% elif state == 4 %}
             <p class="suggestion">Upload an image or video to verify your success.</p>
             <form method="post" enctype="multipart/form-data" id="upload-form">
                 <input type="file" name="file" class="file" id="file-input" />
@@ -88,18 +88,18 @@
             </form>
             <div id="progress-bar"></div>
             <button class="cancel">Give up</button>
-        {% elif state == 5 %}
+            {% elif state == 5 %}
             <p>You have been challenged. Let's do it!</p>
             <a class="button accept" href="{{ uri_for('accept', request_id=request_id) }}">Accept</a>
             <a class="button reject" href="{{ uri_for('reject', request_id=request_id) }}">Reject</a>
-        {% elif state == 6 %}
+            {% elif state == 6 %}
             <p class="suggestion">Challenge rejected. Reconsider Taking the challenge!</p>
             <button class="take">Take!</button>
-        {% elif state == 7 %}
+            {% elif state == 7 %}
             <p class="elaborate">Congratulation! You have completed this challenge.</p>
             <p class="suggestion">You may wanna take a look at how others did.</p>
             <button class="others-work">Completions</button>
-        {% elif state == 8 %}
+            {% elif state == 8 %}
             <p class="elaborate">Your application is waiting for verification.</p>
             <p class="suggestion">You can upload an new image or video to replace your last upload.</p>
             <form method="post" enctype="multipart/form-data" id="upload-form">
@@ -108,11 +108,11 @@
             </form>
             <div id="progress-bar"></div>
             <button class="cancel">Give up</button>
-        {% elif state == 9 %}
+            {% elif state == 9 %}
             <p class="elaborate">You are not invited to the challenge.</p>
-        {% else %}
+            {% else %}
             <p class="suggestion">Please login to perform any action.</p>
-        {% endif %}
+            {% endif %}
             <a class="button" href="{{ uri_for('home') }}">Back to list</a>
         </div>
     </div>

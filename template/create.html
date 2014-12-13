@@ -1,10 +1,10 @@
-{% extends "template/index.html" %}
+{% extends "template/base.html" %}
 {% block head %}
 {{ super() }}
 <link href="/static/create.css" rel="stylesheet" type="text/css">
 {% endblock %}
 
-{% block challenge %}
+{% block body %}
 <div id="create-container" class="container">
     <form action="{{ uri_for('create') }}" method="post">
         <div class="input title" id="input-title-div">

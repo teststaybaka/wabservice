@@ -45,6 +45,7 @@ class TestFacebook(BaseHandler):
         #     self.response.write('hellow')
         #     self.session["user"] = 'this is a user'
 
+
 class Account(BaseHandler):
     def get(self):
         current_user = self.current_user
@@ -55,48 +56,64 @@ class Account(BaseHandler):
         else:
             self.redirect_to('home')
 
+
 class Inbox(webapp2.RequestHandler):
     def get(self):
         self.response.headers['Content-Type'] = 'text/plain'
         self.response.write('Hello, World!')
 
+
 class History(BaseHandler):
     def get(self):
-        current_user = self.current_user
+        current_user = self.check_login_status()
         if current_user:
-            user = User.get_by_key_name(current_user.get("id"))
-            logging.info(user.name)
-            # challenge_list = []
-            # for userChallenge in user.challenges:
-            #     challenge_list.append(userChallenge.challenge)
-            requests = ChallengeRequest.all().filter('invitee_id =', current_user.get('id')).fetch(None);
+            requests = ChallengeRequest.all().filter(
+                'invitee_id =', current_user.get('id')).fetch(None)
             invited_list = []
             for request in requests:
-                query = db.GqlQuery('select * from Challenge where challenge_id = :1', request.challenge_id)
+                query = db.GqlQuery(
+                    'select * from Challenge where challenge_id = :1',
+                    request.challenge_id)
                 challenge = query.get()
-                query = db.GqlQuery('select * from User where id = :1', request.inviter_id)
+                query = db.GqlQuery('select * from User where id = :1',
+                                    request.inviter_id)
                 inviter = query.get()
-                invited_list.append({'challenge_id':challenge.challenge_id, 'challenge_title':challenge.title, 'status':request.status, 'inviter': inviter})
+                invited_list.append({'challenge_id':challenge.challenge_id,
+                                     'challenge_title': challenge.title,
+                                     'status': request.status,
+                                     'inviter': inviter})
             
-            requests = ChallengeRequest.all().filter('inviter_id =', current_user.get('id')).fetch(None);
+            requests = ChallengeRequest.all().filter(
+                'inviter_id =', current_user.get('id')).fetch(None)
             inviting_list = []
             for request in requests:
-                query = db.GqlQuery('select * from Challenge where challenge_id = :1', request.challenge_id)
+                query = db.GqlQuery(
+                    'select * from Challenge where challenge_id = :1',
+                    request.challenge_id)
                 challenge = query.get()
-                query = db.GqlQuery('select * from User where id = :1', request.inviter_id)
+                query = db.GqlQuery('select * from User where id = :1',
+                                    request.invitee_id)
                 invitee = query.get()
-                inviting_list.append({'challenge_id':challenge.challenge_id, 'challenge_title':challenge.title, 'status':request.status, 'invitee': invitee})
-            created_list = []
-            challenges = Challenge.all().filter('creator_id =', current_user.get('id')).fetch(None);
-            for challenge in challenges:
-                created_list.append({'challenge_id': challenge.challenge_id, 'challenge_title': challenge.title})
+                inviting_list.append({'challenge_id':challenge.challenge_id,
+                                      'challenge_title':challenge.title,
+                                      'status': request.status,
+                                      'invitee': invitee})
 
-            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.',
-              'invited_list': invited_list, 'inviting_list': inviting_list, 'created_list': created_list}
+            created_list = []
+            challenges = Challenge.all().filter(
+                'creator_id =', current_user.get('id')).fetch(None)
+            for challenge in challenges:
+                created_list.append({'challenge_id': challenge.challenge_id,
+                                     'challenge_title': challenge.title})
+
+            context = {'dialog': 'Hello ' + current_user.get('name') +
+                                 '. Check out how you\'ve done.',
+                       'invited_list': invited_list,
+                       'inviting_list': inviting_list,
+                       'created_list': created_list}
             template = env.get_template('template/account_history.html')
             self.response.write(template.render(context))
-        else:
-            self.redirect_to('home')
+
 
 class LoginStatusChange(BaseHandler):
     def get(self, pre_page):

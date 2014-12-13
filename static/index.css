@@ -66,6 +66,13 @@
     background-color: rgb(240,240,240);
 }
 
+#search-result {
+    float: left;
+    margin-top: 30px;
+    margin-left: 50px;
+    width: 70%;
+}
+
 #challenge-list {
     float: left;
     margin-top: 50px;

@@ -2,6 +2,7 @@
 {% block head %}
 {{ super() }}
 <link href="/static/index.css" rel="stylesheet" type="text/css">
+<script src="/static/index.js" language="JavaScript" type="text/javascript"></script>
 {% endblock %}
 
 {% block body %}
@@ -24,6 +25,9 @@
         {% endfor %}
         </ul>
     </div>
+    {% if keyword %}
+        <div id="search-result">Search results for "<b>{{keyword}}</b>":</div>
+    {% endif %}
     <div id="challenge-list">
     {% for challenge in challenge_list %}
         <li class="per-challenge">

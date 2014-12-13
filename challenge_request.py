@@ -31,8 +31,9 @@ class Accept(BaseHandler):
                     self.gen_error_page(
                         StrConst.REQUEST_NOT_AUTHORIZED.format('accept'))
                 else:
-                    request.status = RequestStatus.ACCEPTED
-                    request.put()
+                    if request.status == RequestStatus.PENDING:
+                        request.status = RequestStatus.ACCEPTED
+                        request.put()
                     self.redirect_to(RouteName.DETAIL,
                                      challenge_id=request.challenge_id)
 
@@ -51,8 +52,9 @@ class Reject(BaseHandler):
                     self.gen_error_page(
                         StrConst.REQUEST_NOT_AUTHORIZED.format('reject'))
                 else:
-                    request.status = RequestStatus.REJECTED
-                    request.put()
+                    if request.status == RequestStatus.PENDING:
+                        request.status = RequestStatus.REJECTED
+                        request.put()
                     self.redirect_to(RouteName.DETAIL,
                                      challenge_id=request.challenge_id)
 
@@ -71,8 +73,9 @@ class Verify(BaseHandler):
                     self.gen_error_page(
                         StrConst.REQUEST_NOT_AUTHORIZED.format('verify'))
                 else:
-                    request.status = RequestStatus.VERIFIED
-                    request.put()
+                    if request.status == RequestStatus.VERIFYING:
+                        request.status = RequestStatus.VERIFIED
+                        request.put()
                     self.redirect_to(RouteName.DETAIL,
                                      challenge_id=request.challenge_id)
 
@@ -91,8 +94,9 @@ class Retry(BaseHandler):
                     self.gen_error_page(
                         StrConst.REQUEST_NOT_AUTHORIZED.format('verify'))
                 else:
-                    request.status = RequestStatus.ACCEPTED
-                    request.put()
+                    if request.status == RequestStatus.VERIFYING:
+                        request.status = RequestStatus.ACCEPTED
+                        request.put()
                     self.redirect_to(RouteName.DETAIL,
                                      challenge_id=request.challenge_id)
 

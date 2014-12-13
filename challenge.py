@@ -240,17 +240,20 @@ class Completions(BaseHandler):
         # TODO: replace hardcoded value with real data
         now_category = 'for fun'
 
-        query = db.GqlQuery("select * from Challenge where challenge_id = :1", int(challenge_id))
-        challenge = query.get()
-        creator = 0
-        completion_list = []
+        challenge = Challenge.all().ancestor(KeyStore.challenge_key())\
+            .filter('challenge_id =', int(challenge_id)).get()
+        if challenge is None:
+            self.gen_error_page(message=StrConst.CHALLENGE_NOT_FOUND)
+            return
 
+        creator = False
+        completion_list = []
         request_key = KeyStore.challenge_request_key()
 
         if self.current_user and challenge.creator_id == self.current_user.get('id'):
-            creator = 1
+            creator = True
 
-        if creator == 1:
+        if creator:
             query = ChallengeRequest.all().ancestor(request_key) \
                 .filter("challenge_id =", int(challenge_id))\
                 .filter("status =", RequestStatus.VERIFYING)

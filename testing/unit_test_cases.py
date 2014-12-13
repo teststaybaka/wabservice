@@ -283,6 +283,7 @@ class ChallengeTestCases(BaseTestCase):
             headers=headers)
         self.assertRedirects(response)
 
+    # TEAM102014-67
     def test_edit_missing_fields(self):
         headers = self.set_session_user(self.test_user_1)
 
@@ -300,6 +301,7 @@ class ChallengeTestCases(BaseTestCase):
         self.assertIn(
             'Some required fields are missing or invalid.', response)
 
+    # TEAM102014-65.1
     def test_edit_challenge_not_found(self):
         response = self.get('/challenge/1/edit')
         self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
@@ -307,6 +309,7 @@ class ChallengeTestCases(BaseTestCase):
         response = self.app.post('/challenge/1/edit')
         self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
 
+    # TEAM102014-69.2
     def test_edit_not_logged_in(self):
         test_challenge = self.create_test_challenge(
             creator_id=self.test_user_id1)
@@ -319,10 +322,12 @@ class ChallengeTestCases(BaseTestCase):
             '/challenge/' + str(test_challenge.challenge_id) + '/edit')
         self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
+    # TEAM102014-65.2
     def test_detail_challenge_not_found(self):
         response = self.get('/challenge/1')
         self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
 
+    # TEAM102014-69.3
     def test_detail_not_logged_in(self):
         test_challenge = self.create_test_challenge(
             creator_id=self.test_user_id1)
@@ -392,6 +397,7 @@ class InviteTestCases(BaseTestCase):
         self.assertIsNotNone(created_request)
         self.assertEqual(created_request.status, RequestStatus.PENDING)
 
+    # TEAM102014-69.9
     def test_invite_not_authorized(self):
         test_challenge = self.create_test_challenge(
             creator_id=self.test_user_id1)
@@ -404,6 +410,7 @@ class InviteTestCases(BaseTestCase):
                                  headers=headers)
         self.assertIn(StrConst.INVITE_NOT_AUTHORIZED, response)
 
+    # TEAM102014-65.3
     def test_invite_challenge_not_found(self):
         headers = self.set_session_user(self.test_user_1)
         response = self.app.post('/invite/1',
@@ -411,6 +418,7 @@ class InviteTestCases(BaseTestCase):
                                  headers=headers)
         self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
 
+    # TEAM102014-69.4
     def test_invite_not_logged_in(self):
         response = self.app.post('/invite/1',
                                  params={'friend1': self.test_user_id1})
@@ -501,10 +509,12 @@ class ChallengeRequestTestCases(BaseTestCase):
     def test_accept_repeated(self):
         self.template_test(action='accept', status=RequestStatus.ACCEPTED)
 
+    # TEAM102014-69.5
     def test_accept_not_logged_in(self):
         response = self.get('/requests/1/accept')
         self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
+    # TEAM102014-69.10
     def test_accept_not_authorized(self):
         test_request = self.create_test_request(
             inviter_id=self.test_user_id1,
@@ -516,6 +526,21 @@ class ChallengeRequestTestCases(BaseTestCase):
         self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('accept'),
                       response)
 
+    # TEAM102014-75.1
+    def test_accept_wrong_state(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.VERIFYING)
+        headers = self.set_session_user(self.test_user_2)
+        self.get('/requests/' + str(test_request.key().id()) + '/accept',
+                 headers=headers)
+        test_request = ChallengeRequest.get_by_id(
+            test_request.key().id(),
+            KeyStore.challenge_request_key())
+        self.assertEqual(test_request.status, RequestStatus.VERIFYING)
+
+    # TEAM102014-65.4
     def test_accept_not_found(self):
         headers = self.set_session_user(self.test_user_1)
         response = self.get('/requests/1/accept', headers=headers)
@@ -529,10 +554,12 @@ class ChallengeRequestTestCases(BaseTestCase):
     def test_reject_repeated(self):
         self.template_test(action='reject', status=RequestStatus.REJECTED)
 
+    # TEAM102014-69.6
     def test_reject_not_logged_in(self):
         response = self.get('/requests/1/reject')
         self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
+    # TEAM102014-69.11
     def test_reject_not_authorized(self):
         test_request = self.create_test_request(
             inviter_id=self.test_user_id1,
@@ -544,6 +571,21 @@ class ChallengeRequestTestCases(BaseTestCase):
         self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('reject'),
                       response)
 
+    # TEAM102014-75.2
+    def test_reject_wrong_state(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.VERIFYING)
+        headers = self.set_session_user(self.test_user_2)
+        self.get('/requests/' + str(test_request.key().id()) + '/reject',
+                 headers=headers)
+        test_request = ChallengeRequest.get_by_id(
+            test_request.key().id(),
+            KeyStore.challenge_request_key())
+        self.assertEqual(test_request.status, RequestStatus.VERIFYING)
+
+    # TEAM102014-65.5
     def test_reject_not_found(self):
         headers = self.set_session_user(self.test_user_1)
         response = self.get('/requests/1/reject', headers=headers)
@@ -553,10 +595,12 @@ class ChallengeRequestTestCases(BaseTestCase):
     def test_verify(self):
         self.template_test(action='confirm')
 
+    # TEAM102014-69.7
     def test_verify_not_logged_in(self):
         response = self.get('/requests/1/confirm')
         self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
+    # TEAM102014-69.12
     def test_verify_not_authorized(self):
         test_request = self.create_test_request(
             inviter_id=self.test_user_id1,
@@ -568,6 +612,21 @@ class ChallengeRequestTestCases(BaseTestCase):
         self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('verify'),
                       response)
 
+    # TEAM102014-75.3
+    def test_verify_wrong_state(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.PENDING)
+        headers = self.set_session_user(self.test_user_1)
+        self.get('/requests/' + str(test_request.key().id()) + '/confirm',
+                 headers=headers)
+        test_request = ChallengeRequest.get_by_id(
+            test_request.key().id(),
+            KeyStore.challenge_request_key())
+        self.assertEqual(test_request.status, RequestStatus.PENDING)
+
+    # TEAM102014-65.6
     def test_verify_not_found(self):
         headers = self.set_session_user(self.test_user_1)
         response = self.get('/requests/1/confirm', headers=headers)
@@ -577,10 +636,12 @@ class ChallengeRequestTestCases(BaseTestCase):
     def test_retry(self):
         self.template_test(action='retry')
 
+    # TEAM102014-69.8
     def test_retry_not_logged_in(self):
         response = self.get('/requests/1/retry')
         self.assertIn(StrConst.NOT_LOGGED_IN, response)
 
+    # TEAM102014-69.13
     def test_retry_not_authorized(self):
         test_request = self.create_test_request(
             inviter_id=self.test_user_id1,
@@ -592,6 +653,21 @@ class ChallengeRequestTestCases(BaseTestCase):
         self.assertIn(StrConst.REQUEST_NOT_AUTHORIZED.format('verify'),
                       response)
 
+    # TEAM102014-75.4
+    def test_retry_wrong_state(self):
+        test_request = self.create_test_request(
+            inviter_id=self.test_user_id1,
+            invitee_id=self.test_user_id2,
+            status=RequestStatus.PENDING)
+        headers = self.set_session_user(self.test_user_1)
+        self.get('/requests/' + str(test_request.key().id()) + '/retry',
+                 headers=headers)
+        test_request = ChallengeRequest.get_by_id(
+            test_request.key().id(),
+            KeyStore.challenge_request_key())
+        self.assertEqual(test_request.status, RequestStatus.PENDING)
+
+    # TEAM102014-65.7
     def test_retry_not_found(self):
         headers = self.set_session_user(self.test_user_1)
         response = self.get('/requests/1/retry', headers=headers)
@@ -677,6 +753,11 @@ class CompletionsTestCases(BaseTestCase):
         self.assertNotIn(self.test_user_2.name, response)
         self.assertIn(self.test_user_3.name, response)
         self.assertIn(self.test_user_4.name, response)
+
+    # TEAM102014-65.8
+    def test_completions_not_found(self):
+        response = self.get('/challenge/111/completions')
+        self.assertIn(StrConst.CHALLENGE_NOT_FOUND, response)
 
     def tearDown(self):
         super(CompletionsTestCases, self).setUp()

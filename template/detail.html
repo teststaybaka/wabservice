@@ -41,16 +41,16 @@
             <p class="suggestion">You may wanna take a look at other challenges.</p>
             {% elif state == 2 %}
             <p class="elaborate">Your challenge is on the fly.</p>
-            <p class="suggestion">You may look at new completing applications or invite more friends.</p>
+            <p class="suggestion">You may look at new completing applications or invite more friends.</p>          
             {% if friend_list[0] %}
-            <form action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" method="post">
-                <select name="friend1" id="friend" tabindex="4">
+            <form name="friendForm" action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" onsubmit="return checkFriList()" method="post">
+                <div id=friend-container>
                     {% for friend in friend_list %}
-                    <option value="{{friend[1]}}"}>{{friend[0]}}</option>
-                    {% endfor %}
-                </select>
+                        <input type="checkbox" name="friendList[]" value="{{friend[1]}}"/>{{friend[0]}} <br />
+                    {% endfor %}    
+                </div>
                 <input type="submit" value="Invite" class="button">
-            </form>
+            </form>          
             {% else %}
             <p class="elaborate">No friend available to invite.</p>
             {% endif %}
@@ -59,12 +59,12 @@
             <p class="elaborate">Congratulation! You have completed this challenge.</p>
             <p class="suggestion">It's time to challenge your friends!</p>
             {% if friend_list[0] %}
-            <form action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" method="post">
-                <select name="friend1" id="friend" tabindex="4">
+            <form name="friendForm" action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" onsubmit="return checkFriList()" method="post">
+                <div id=friend-container>
                     {% for friend in friend_list %}
-                    <option value="{{friend[1]}}"}>{{friend[0]}}</option>
-                    {% endfor %}
-                </select>
+                        <input type="checkbox" name="friendList[]" value="{{friend[1]}}"/>{{friend[0]}} <br />
+                    {% endfor %}    
+                </div>
                 <input type="submit" value="Invite" class="button">
             </form>
             {% else %}

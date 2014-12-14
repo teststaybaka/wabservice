@@ -108,3 +108,11 @@ input.file {
     background-image: url("/static/bar.jpg");
     background-repeat: no-repeat;
 }
+
+#friend-container {
+    height: 50px; 
+    width: 180px; 
+    overflow: auto; 
+    border: 1px solid rgb(200,200,200);
+    margin-bottom: 5px;
+}

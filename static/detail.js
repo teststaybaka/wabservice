@@ -124,3 +124,17 @@ window.onload = function() {
     var button = document.getElementById('submit-button')
     button.addEventListener('click', getAction);
 };
+
+function checkFriList() {
+    var friList = document.forms["friendForm"]["friendList[]"];
+    var count = 0;
+    for (var i=0; i<friList.length; i++) {
+        if (friList[i].checked) {
+            count++;
+        }
+    }
+    if (count > 3 || count < 1) {
+        alert("You can invite at least 1 at most 3 friends")
+        return false;
+    }
+};

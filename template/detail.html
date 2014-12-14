@@ -46,7 +46,7 @@
             <form name="friendForm" action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" onsubmit="return checkFriList()" method="post">
                 <div id=friend-container>
                     {% for friend in friend_list %}
-                        <input type="checkbox" name="friendList[]" value="{{friend[1]}}"/>{{friend[0]}} <br />
+                        <input type="checkbox" name="friendList" value="{{friend[1]}}"/>{{friend[0]}} <br />
                     {% endfor %}    
                 </div>
                 <input type="submit" value="Invite" class="button">
@@ -62,7 +62,7 @@
             <form name="friendForm" action="{{ uri_for('invite', challenge_id=challenge.challenge_id ) }}" onsubmit="return checkFriList()" method="post">
                 <div id=friend-container>
                     {% for friend in friend_list %}
-                        <input type="checkbox" name="friendList[]" value="{{friend[1]}}"/>{{friend[0]}} <br />
+                        <input type="checkbox" name="friendList" value="{{friend[1]}}"/>{{friend[0]}} <br />
                     {% endfor %}    
                 </div>
                 <input type="submit" value="Invite" class="button">

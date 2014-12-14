@@ -12,7 +12,7 @@ class Invite(BaseHandler):
         if current_user is not None:
             current_user_id = current_user.get('id')
             invite(self, challenge_id, current_user_id,
-                   self.request.POST.getall("friendList[]"))
+                   self.request.POST.getall("friendList"))
         else:
             self.gen_error_page(message=StrConst.NOT_LOGGED_IN)
 
@@ -127,18 +127,27 @@ def invite(handler, challenge_id, inviter_id, invitee_id_List):
 
     # user as inviter
     for invitee_id in invitee_id_List:
-        request_key = KeyStore.challenge_request_key()
-        request = ChallengeRequest(inviter_id=inviter_id,
-                                   invitee_id=invitee_id,
-                                   challenge_id=int(challenge_id),
-                                   status=RequestStatus.PENDING,
-                                   parent=request_key)
-        request.put()
+        # check if invitee has been invited before
+        request = ChallengeRequest.all() \
+            .ancestor(KeyStore.challenge_request_key()) \
+            .filter('invitee_id =', invitee_id) \
+            .filter('challenge_id =', int(challenge_id)).get()
 
-        request = ChallengeRequest.get_by_id(request.key().id(), request_key)
+        # add invitee if invitee not invited before
         if request is None:
-            handler.gen_error_page(message=StrConst.INVITE_FAILED)
-        else:
-            handler.session['message'] = StrConst.INVITE_SUCCESS
-            handler.redirect_to(RouteName.DETAIL,
-                                challenge_id=challenge_id)
+            request_key = KeyStore.challenge_request_key()
+            request = ChallengeRequest(inviter_id=inviter_id,
+                                       invitee_id=invitee_id,
+                                       challenge_id=int(challenge_id),
+                                       status=RequestStatus.PENDING,
+                                       parent=request_key)
+            request.put()
+
+            request = ChallengeRequest.get_by_id(request.key().id(), request_key)
+            if request is None:
+                handler.gen_error_page(message=StrConst.INVITE_FAILED)
+
+    # all invite success
+    handler.session['message'] = StrConst.INVITE_SUCCESS
+    handler.redirect_to(RouteName.DETAIL,
+                        challenge_id=challenge_id)

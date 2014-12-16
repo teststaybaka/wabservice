@@ -1,12 +1,15 @@
 from views import *
-
+from db_utils import KeyStore
 
 class History(BaseHandler):
     def get(self):
         current_user = self.check_login_status()
         if current_user:
-            requests = ChallengeRequest.all().filter(
-                'invitee_id =', current_user.get('id')).fetch(None)
+            challenge_key = KeyStore.challenge_key()
+            challenge_request_key = KeyStore.challenge_request_key()
+
+            requests = ChallengeRequest.all().ancestor(challenge_request_key)\
+                .filter('invitee_id =', current_user.get('id')).fetch(None)
             invited_list = []
             for request in requests:
                 query = db.GqlQuery(
@@ -21,8 +24,8 @@ class History(BaseHandler):
                                      'status': request.status,
                                      'inviter': inviter})
             
-            requests = ChallengeRequest.all().filter(
-                'inviter_id =', current_user.get('id')).fetch(None)
+            requests = ChallengeRequest.all().ancestor(challenge_request_key)\
+                .filter('inviter_id =', current_user.get('id')).fetch(None)
             inviting_list = []
             for request in requests:
                 query = db.GqlQuery(
@@ -38,7 +41,7 @@ class History(BaseHandler):
                                       'invitee': invitee})
 
             created_list = []
-            challenges = Challenge.all().filter(
+            challenges = Challenge.all().ancestor(challenge_key).filter(
                 'creator_id =', current_user.get('id')).fetch(None)
             for challenge in challenges:
                 created_list.append({'challenge_id': challenge.challenge_id,

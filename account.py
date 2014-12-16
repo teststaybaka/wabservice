@@ -57,12 +57,6 @@ class Account(BaseHandler):
             self.redirect_to('home')
 
 
-class Inbox(webapp2.RequestHandler):
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')
-
-
 class History(BaseHandler):
     def get(self):
         current_user = self.check_login_status()

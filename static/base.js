@@ -1,10 +1,10 @@
 var xmlHttpRequest;
 
 function createXmlHttpRequest(){  
-  if(window.ActiveXObject){ //如果是IE浏览器  
+  if(window.ActiveXObject){ // IE browser
       return new ActiveXObject("Microsoft.XMLHTTP");  
   }
-  else if(window.XMLHttpRequest){ //非IE浏览器  
+  else if(window.XMLHttpRequest){ // non-IE browser
       return new XMLHttpRequest();  
   }
 }
@@ -35,18 +35,6 @@ function statusChangeCallback(response) {
     } else {
       FB.api('/me', function(response) {
         if (response && !response.error) {
-          console.log('Successful login for: ' + response.name);
-          // document.getElementById('navigation-bar').appendChild() = '<a href="/account" id="username-link" class="user-info">'+response.name+'</a> \
-          // <a href="/inbox" id="inbox-link" class="user-info">inbox</a><a href="/history" id="history-link" class="user-info">history</a>';
-          // var img = document.createElement('img');
-          // FB.api('/me/picture', {"redirect": false, "height": "10", "type": "normal", "width": "10"}, function(response) {
-          // if (response && !response.error) {
-          //     var profileImage = response.data.url;
-          //     console.log('imgdata: ' + profileImage);
-          //     img.setAttribute('src', profileImage);
-          //   }
-          // });
-
           var uname = document.createElement("a");
           uname.setAttribute('href', '/account');
           uname.setAttribute('id', 'username-link');
@@ -54,13 +42,6 @@ function statusChangeCallback(response) {
           var text = document.createTextNode(response.name);
           // uname.appendChild(img);
           uname.appendChild(text);
-
-          var inbox = document.createElement("a");
-          inbox.setAttribute('href', '/inbox');
-          inbox.setAttribute('id', 'inbox-link');
-          inbox.setAttribute('class', 'user-info');
-          var text = document.createTextNode('inbox');
-          inbox.appendChild(text);
 
           var hist = document.createElement("a");
           hist.setAttribute('href', '/history');
@@ -70,7 +51,6 @@ function statusChangeCallback(response) {
           hist.appendChild(text);
           var bar = document.getElementById("navigation-bar");
           bar.appendChild(hist);
-          bar.appendChild(inbox);
           bar.appendChild(uname);
         }
       });
@@ -117,7 +97,7 @@ window.fbAsyncInit = function() {
     xfbml      : true,
     version    : 'v2.1'
   });
-  
+
   FB.getLoginStatus(function(response) {
     statusChangeCallback(response);
   });

@@ -174,7 +174,7 @@ class Detail(BaseHandler):
         except:
             raise
 
-        #exclude friends who have been invited
+        # exclude friends who have been invited
         invitable_friend_list = []
         for friend in friends['data']:
             query = db.GqlQuery("select * from ChallengeRequest where "

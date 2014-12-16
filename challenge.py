@@ -146,8 +146,14 @@ class Detail(BaseHandler):
                         state = DetailState.VERIFYING
                     elif request.status == RequestStatus.VERIFIED:
                         state = DetailState.VERIFIED
-                        context['friend_list'] = self.get_invitable_friends(
-                            current_user, challenge_id, challenge.creator_id)
+                        try:
+                            context['friend_list'] = self.get_invitable_friends(
+                                current_user, challenge_id, challenge.creator_id)
+                        except facebook.GraphAPIError:
+                            self.refresh_login_status()
+                            self.redirect_to(RouteName.DETAIL,
+                                             challenge_id=challenge_id)
+                            return
                     else:
                         state = DetailState.COMPLETED
                     context['request_id'] = request.key().id()

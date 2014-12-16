@@ -95,10 +95,12 @@ class BaseHandler(webapp2.RequestHandler):
                 id=user.id,
                 access_token=user.access_token
             )
+            self.response.set_cookie('status', 'login', path='/')
             return self.session.get("user")
         else:
             if self.session.get('user'):
                 self.session.pop('user')
+            self.response.set_cookie('status', 'logout', path='/')
             return None
 
     @property

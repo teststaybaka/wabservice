@@ -8,13 +8,15 @@ class Invite(BaseHandler):
         self.redirect_to(RouteName.DETAIL, challenge_id=challenge_id)
 
     def post(self, challenge_id):
+        self.refresh_login_status()
         current_user = self.check_login_status()
         if current_user is not None:
             current_user_id = current_user.get('id')
             invite(self, challenge_id, current_user_id,
                    self.request.POST.getall("friendList"))
         else:
-            self.gen_error_page(message=StrConst.NOT_LOGGED_IN)
+            self.session['message'] = StrConst.NOT_LOGGED_IN
+            self.redirect_to(RouteName.DETAIL, challenge_id=challenge_id)
 
 
 class Accept(BaseHandler):

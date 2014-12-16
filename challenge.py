@@ -116,7 +116,7 @@ class Edit(BaseHandler):
 
 class Detail(BaseHandler):
     def get(self, challenge_id):
-        challenge = Challenge.all().filter(
+        challenge = Challenge.all().ancestor(KeyStore.challenge_key()).filter(
             "challenge_id =", int(challenge_id)).get()
         if challenge is not None:
             creator = db.GqlQuery("select * from User where id = :1",

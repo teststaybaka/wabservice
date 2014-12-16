@@ -36,18 +36,16 @@ function statusChangeCallback(response) {
       FB.api('/me', function(response) {
         if (response && !response.error) {
           var uname = document.createElement("a");
-          uname.setAttribute('href', '/account');
           uname.setAttribute('id', 'username-link');
           uname.setAttribute('class', 'user-info');
           var text = document.createTextNode(response.name);
-          // uname.appendChild(img);
           uname.appendChild(text);
 
           var hist = document.createElement("a");
           hist.setAttribute('href', '/history');
           hist.setAttribute('id', 'history-link');
           hist.setAttribute('class', 'user-info');
-          var text = document.createTextNode('history');
+          var text = document.createTextNode('History');
           hist.appendChild(text);
           var bar = document.getElementById("navigation-bar");
           bar.appendChild(hist);

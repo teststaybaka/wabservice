@@ -23,7 +23,6 @@ application = webapp2.WSGIApplication(
         webapp2.Route(r'/loginstatuschange/<pre_page:.*>',
                       account.LoginStatusChange,
                       name=RouteName.LOGIN_STATUS_CHANGE),
-        webapp2.Route(r'/account', account.Account, name=RouteName.ACCOUNT),
         webapp2.Route(r'/history', account.History, name=RouteName.HISTORY),
 
         # challenge related

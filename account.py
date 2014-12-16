@@ -46,17 +46,6 @@ class TestFacebook(BaseHandler):
         #     self.session["user"] = 'this is a user'
 
 
-class Account(BaseHandler):
-    def get(self):
-        current_user = self.current_user
-        if current_user:
-            context = {'dialog': 'Hello '+current_user.get('name')+'. Check out how you\'ve done.'}
-            template = env.get_template('template/account_base.html')
-            self.response.write(template.render(context))
-        else:
-            self.redirect_to('home')
-
-
 class History(BaseHandler):
     def get(self):
         current_user = self.check_login_status()
@@ -100,12 +89,21 @@ class History(BaseHandler):
                 created_list.append({'challenge_id': challenge.challenge_id,
                                      'challenge_title': challenge.title})
 
+            category = self.request.get("category", default_value='all')
+            if category != 'all':
+                if category != 'created':
+                    created_list = []
+                if category != 'invited':
+                    invited_list = []
+                if category != 'inviting':
+                    inviting_list = []
+
             context = {'dialog': 'Hello ' + current_user.get('name') +
                                  '. Check out how you\'ve done.',
                        'invited_list': invited_list,
                        'inviting_list': inviting_list,
                        'created_list': created_list}
-            template = env.get_template('template/account_history.html')
+            template = env.get_template('template/history.html')
             self.response.write(template.render(context))
 
 

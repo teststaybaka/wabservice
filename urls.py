@@ -39,8 +39,6 @@ application = webapp2.WSGIApplication(
                       challenge.ServeFile, name=RouteName.SERVE_FILE),
         webapp2.Route(r'/challenge/<challenge_id:\d+>/completions',
                       challenge.Completions, name=RouteName.COMPLETIONS),
-        webapp2.Route(r'/challenge/<challenge_id:\d+>/discussions',
-                      views.Discussions, name=RouteName.DISCUSSIONS),
 
         # challenge request related
         webapp2.Route(r'/invite/<challenge_id:\d+>',
@@ -56,7 +54,6 @@ application = webapp2.WSGIApplication(
 
         # misc
         webapp2.Route(r'/error', name='error'),
-        webapp2.Route(r'/test', account.TestFacebook, name=RouteName.TEST),
         webapp2.Route(r'/admin/init', admin.Init, name=RouteName.INIT),
         webapp2.Route(r'/admin/add_new_entity', admin.AddNewEntity,
                       name=RouteName.ADD_NEW_ENTITY),

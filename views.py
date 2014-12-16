@@ -182,9 +182,3 @@ class Home(BaseHandler):
             'keyword': keyword}
         template = env.get_template('template/index.html')
         self.response.write(template.render(context))
-
-
-class Discussions(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')

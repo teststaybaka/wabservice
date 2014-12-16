@@ -12,7 +12,6 @@
         {% if editable %}
         <a href="{{ uri_for('edit', challenge_id=challenge.challenge_id) }}">Edit</a>
         {% endif %}
-        <a href="{{ uri_for('discussions', challenge_id=challenge.challenge_id) }}" class="bar" id="discussions-bar">Discussions</a>
         <a href="{{ uri_for('completions', challenge_id=challenge.challenge_id) }}" class="bar" id="completions-bar">Completions</a>
         <a href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}" class="bar" id="intro-bar">Introduction</a>
     </div>

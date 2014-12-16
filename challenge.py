@@ -147,8 +147,14 @@ class Detail(BaseHandler):
                 if current_user.get('id') == creator.id:
                     state = DetailState.CREATOR
                     context['editable'] = True
-                    context['friend_list'] = self.get_invitable_friends(
-                        current_user, challenge_id, challenge.creator_id)
+                    try:
+                        context['friend_list'] = self.get_invitable_friends(
+                            current_user, challenge_id, challenge.creator_id)
+                    except facebook.GraphAPIError:
+                        self.refresh_login_status()
+                        self.redirect_to(RouteName.DETAIL,
+                                         challenge_id=challenge_id)
+                        return
             else:
                 state = DetailState.NOT_LOGGED_IN
 
@@ -164,8 +170,9 @@ class Detail(BaseHandler):
             graph = facebook.GraphAPI(current_user["access_token"])
             profile = graph.get_object("me")
             friends = graph.get_connections("me", "friends")
+            logging.info(str(friends))
         except:
-            return []
+            raise
 
         #exclude friends who have been invited
         invitable_friend_list = []

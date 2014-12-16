@@ -35,7 +35,7 @@ div.confirmed {
 }
 
 a.confirm, a.not-confirm {
-    margin-left: 20px;
+    margin-left: 10px;
     position: relative;
     top: -90px;
 }

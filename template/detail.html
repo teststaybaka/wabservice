@@ -22,15 +22,15 @@
         <div class="state-info">Completed: {{ challenge.completion_counts }}</div>
     </div>
     <div id="challenge-info-container">
-        <div id="challenge-description">
-            <h3>Description:</h3>
+        <div id="challenge-introduction">
+            <h3>Introduction:</h3>
             <p>{{ challenge.summary }}</p>
             {% for tag in challenge.category %}
             <div class="tag">{{ tag }}</div>
             {% endfor %}
         </div>
         <div id="challenge-content">
-            <h3>Introduction:</h3>
+            <h3>Description:</h3>
             <p>{{ challenge.content }}</p>
         </div>
 
@@ -97,7 +97,7 @@
             <div id="progress-bar"></div>
             <button class="cancel">Give up</button>
             {% elif state == 9 %}
-            <p class="elaborate">You are not invited to the challenge.</p>
+            <p class="elaborate">You are not invited to this challenge.</p>
             {% else %}
             <p class="suggestion">Please login to perform any action.</p>
             {% endif %}

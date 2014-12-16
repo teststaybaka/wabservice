@@ -27,8 +27,10 @@
         <br>{{ entry.get('filename') }}</a></div>
         {% if creator == 1 %}
             {% if entry.get('status') == 'verifying' %}
-            <a class="button confirm" href="{{ uri_for('confirm', request_id=entry.get('request_id')) }}">Confirm</a>
-            <a class="button not-confirm" href="{{ uri_for('retry', request_id=entry.get('request_id')) }}">Try again</a>
+            <div class="decision">
+                <a class="button confirm" href="{{ uri_for('confirm', request_id=entry.get('request_id')) }}">Confirm</a>
+                <a class="button not-confirm" href="{{ uri_for('retry', request_id=entry.get('request_id')) }}">Try again</a>
+            </div>
             {% else %}
             <div class="confirmed">Confirmed</div>
             {% endif %}

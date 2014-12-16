@@ -75,7 +75,7 @@ class Edit(BaseHandler):
                                 break
                         checked.append(found)
 
-                    context = {'challenge': challenge, 'category_list': available_category_list, 'checked':checked}
+                    context = {'challenge': challenge, 'category_list': available_category_list, 'checked':checked, 'dialog':'Anything you want to change?'}
                     template = env.get_template('template/edit.html')
                     self.response.write(template.render(context))
         else:
@@ -97,7 +97,7 @@ class Edit(BaseHandler):
                         challenge.title = self.request.get('title')
                         challenge.summary = self.request.get('summary')
                         challenge.content = self.request.get('content')
-                        challenge.category = [self.request.get('category')]
+                        challenge.category = self.request.get_all('category')
                         challenge.put()
                     except BadValueError:
                         context = {'challenge': challenge,
@@ -121,10 +121,11 @@ class Detail(BaseHandler):
         if challenge is not None:
             creator = db.GqlQuery("select * from User where id = :1",
                                   challenge.creator_id).get()
+            default_message = 'How is this challenge? Do you like it?'
             context = {'creator': creator,
                        'challenge': challenge,
                        'intro_active': 1,
-                       'dialog': self.message}
+                       'dialog': self.message(default_message=default_message)}
 
             current_user = self.current_user
             if current_user:

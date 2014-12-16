@@ -112,3 +112,7 @@ div.user-info, a.user-info, div.fb-share-button {
     margin-right: auto;
     margin-bottom: 50px;
 }
+
+#username-link:hover {
+    color: rgb(0,0,0);
+}

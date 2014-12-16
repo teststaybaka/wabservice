@@ -27,9 +27,9 @@
             {% elif entry.status == 'pending' %}
             You are invited to the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}
             {% elif entry.status == 'verifying' %}
-            You have submitted the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}
+            You have submitted the challenge <a href="{{ uri_for('completions', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}
             {% else %}
-            You have completed the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}, Congratulations!
+            You have completed the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}. Congratulations!
             {% if entry.status == 'verified' %}
             You have a chance to invite your friends to the challenge!
             {% endif %}
@@ -46,7 +46,7 @@
             {% elif entry.status == 'pending' %}
             You invited {{ entry.invitee.name }} to the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a>
             {% elif entry.status == 'verifying' %}
-            {{ entry.invitee.name }} has submitted the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> Take a look!
+            {{ entry.invitee.name }} has submitted the challenge <a href="{{ uri_for('completions', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> Take a look!
             {% else %}
             {{ entry.invitee.name }} has completed the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a>
             {% endif %}

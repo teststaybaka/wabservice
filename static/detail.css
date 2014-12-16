@@ -43,11 +43,11 @@ a.bar.active {
     width: 70%;
 }
 
- #challenge-description, #challenge-content {
+#challenge-introduction, #challenge-content {
     border-bottom: 1px solid rgb(200,200,200);
 }
 
-#challenge-content, #annotation, #challenge-verification-method, #challenge-description, #interactive-block {
+#challenge-content, #annotation, #challenge-verification-method, #challenge-introduction, #interactive-block {
     padding-top: 15px;
     padding-left: 10px;
 }
@@ -110,9 +110,8 @@ input.file {
 }
 
 #friend-container {
-    height: 50px; 
+    max-height: 80px; 
     width: 180px; 
     overflow: auto; 
-    border: 1px solid rgb(200,200,200);
     margin-bottom: 5px;
 }

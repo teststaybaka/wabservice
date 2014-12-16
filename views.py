@@ -50,18 +50,19 @@ def gen_error_page(response, message=None, redirect_url=None, exception=None):
     response.write(template.render(context))
 
 class BaseHandler(webapp2.RequestHandler):
-    @property
-    def message(self):
+    def message(self, default_message='', greeting=False):
         if self.session.get('message'):
             words = self.session.get('message')
             self.session.pop('message')
             return words
         else:
-            if self.current_user:
-                words = 'Hello '+self.current_user.get('name')+'.'
-            else:
-                words = 'Hello there.'
-            words += ' Welcome! Here you can see challenges all over the world. Take one that is challenging you!'
+            words = ''
+            if greeting:
+                if self.current_user:
+                    words += 'Hello '+self.current_user.get('name')+'. '
+                else:
+                    words += 'Hello there. '
+            words += default_message
             return words
 
     def refresh_login_status(self):
@@ -174,11 +175,12 @@ class Home(BaseHandler):
         category_list = available_category_list
         challenge_list = get_challenges(keyword=keyword,
                                         now_category=now_category)
+        default_message = 'Welcome! Here you can see challenges all over the world. Click one to see its detailed description! Take one that is challenging you!'
         context = {
             'category_list': category_list,
             'challenge_list': challenge_list,
             'now_category': now_category,
-            'dialog': self.message,
+            'dialog': self.message(default_message=default_message, greeting=True),
             'keyword': keyword}
         template = env.get_template('template/index.html')
         self.response.write(template.render(context))

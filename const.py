@@ -75,4 +75,5 @@ class StrConst(object):
     REQUEST_NOT_FOUND = "Challenge request not found."
     REQUEST_NOT_AUTHORIZED = "You are not allowed to {0} this request."
     RESOURCE_NOT_FOUND = "Resource not found."
-    
+    PAGE_NOT_FOUND = "Oops! Page not found!"
+    SERVER_ERROR = "A server error occurred!"

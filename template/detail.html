@@ -54,7 +54,7 @@
             {% else %}
             <p class="elaborate">No friend available to invite.</p>
             {% endif %}
-            <button class="others-work">Completions</button>
+            <a class="button others-work" href="{{ uri_for('completions', challenge_id=challenge.challenge_id) }}">Completions</button>
             {% elif state == 3%}
             <p class="elaborate">Congratulation! You have completed this challenge.</p>
             <p class="suggestion">It's time to challenge your friends!</p>
@@ -77,18 +77,17 @@
                 <button class="upload" id="submit-button" type="button">Upload</button>
             </form>
             <div id="progress-bar"></div>
-            <button class="cancel">Give up</button>
             {% elif state == 5 %}
             <p>You have been challenged. Let's do it!</p>
             <a class="button accept" href="{{ uri_for('accept', request_id=request_id) }}">Accept</a>
             <a class="button reject" href="{{ uri_for('reject', request_id=request_id) }}">Reject</a>
             {% elif state == 6 %}
             <p class="suggestion">Challenge rejected. Reconsider Taking the challenge!</p>
-            <button class="take">Take!</button>
+            <a class="button take" href="{{ uri_for('accept', request_id=request_id) }}">Take!</a>
             {% elif state == 7 %}
             <p class="elaborate">Congratulation! You have completed this challenge.</p>
             <p class="suggestion">You may wanna take a look at how others did.</p>
-            <button class="others-work">Completions</button>
+            <a class="button others-work" href="{{ uri_for('completions', challenge_id=challenge.challenge_id) }}">Completions</button>
             {% elif state == 8 %}
             <p class="elaborate">Your application is waiting for verification.</p>
             <p class="suggestion">You can upload an new image or video to replace your last upload.</p>

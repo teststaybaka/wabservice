@@ -1,10 +1,10 @@
-{% extends "template/index.html" %}
+{% extends "template/base.html" %}
 {% block head %}
 {{ super() }}
 <link href="/static/create.css" rel="stylesheet" type="text/css">
 {% endblock %}
 
-{% block challenge %}
+{% block body %}
 <div id="create-container" class="container">
     <form action="{{ uri_for('edit', challenge_id=challenge.challenge_id) }}" method="post">
         <div class="input title" id="input-title-div">
@@ -21,10 +21,13 @@
         </div>
         <div class="input category" id="input-category-div">
             <p>What kind of challenge?</p>
-            <input class="text" name="category" id="input-category" type="text" tabindex="5" value="{{ challenge.category[0] }}"/>
+            {% for category in category_list %}
+            <input type="checkbox" name="category" value="{{category}}" {% if checked[loop.index0] %} checked {% endif %}/>{{category}}<br/>
+            {% endfor %}
         </div>
         <div class="input submit" id="submit-button-div">
             <input type="submit" value="Update" class="button">
+            <a class="button" href="{{ uri_for('detail', challenge_id=challenge.challenge_id) }}">Back</a>
         </div>
     </form>
 </div>

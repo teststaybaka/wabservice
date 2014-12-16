@@ -35,3 +35,7 @@ p {
 #submit-button-div {
     padding-top: 20px;
 }
+
+a.button {
+    margin-left: 5px;
+}

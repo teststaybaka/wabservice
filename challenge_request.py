@@ -31,7 +31,7 @@ class Accept(BaseHandler):
                     self.gen_error_page(
                         StrConst.REQUEST_NOT_AUTHORIZED.format('accept'))
                 else:
-                    if request.status == RequestStatus.PENDING:
+                    if request.status == RequestStatus.PENDING or request.status == RequestStatus.REJECTED:
                         request.status = RequestStatus.ACCEPTED
                         request.put()
                     self.redirect_to(RouteName.DETAIL,

@@ -15,7 +15,7 @@ class Init(webapp2.RequestHandler):
         for entry in query.run():
             entry.delete()
 
-        challenge_ID_Factory = Challenge_ID_Factory(id_counter=0);
+        challenge_ID_Factory = get_id_factory()
         challenge_ID_Factory.put();
 
         testUserId = '1498084320443459'

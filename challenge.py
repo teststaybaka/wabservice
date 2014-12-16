@@ -66,7 +66,16 @@ class Edit(BaseHandler):
                     self.redirect_to(RouteName.DETAIL,
                                      challenge_id=challenge.challenge_id)
                 else:
-                    context = {'challenge': challenge}
+                    checked = []
+                    for i in range(0, len(available_category_list)):
+                        found = 0
+                        for j in range(0, len(challenge.category)):
+                            if challenge.category[j] == available_category_list[i]:
+                                found = 1
+                                break
+                        checked.append(found)
+
+                    context = {'challenge': challenge, 'category_list': available_category_list, 'checked':checked}
                     template = env.get_template('template/edit.html')
                     self.response.write(template.render(context))
         else:
@@ -219,7 +228,8 @@ class Upload(BaseHandler, blobstore_handlers.BlobstoreUploadHandler):
         if request.file_info != None:
             request.file_info.delete()
         request.file_info = blob_info
-        request.status = RequestStatus.VERIFYING
+        if request.status == RequestStatus.ACCEPTED:
+            request.status = RequestStatus.VERIFYING
         request.put()
         # logging.info('upload:'+blob_info.filename)
         # self.redirect_to('detail', challenge_id=challenge_id)

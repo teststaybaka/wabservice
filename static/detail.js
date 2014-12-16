@@ -122,7 +122,9 @@ window.onload = function() {
     bar.setAttribute('class', 'active bar');
 
     var button = document.getElementById('submit-button')
-    button.addEventListener('click', getAction);
+    if (button != null) {
+        button.addEventListener('click', getAction);
+    }
 };
 
 function checkFriList() {

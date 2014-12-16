@@ -76,7 +76,7 @@ input.text:focus, textarea:focus {
     float: left;
 }
 
-div.user-info, a.user-info {
+div.user-info, a.user-info, div.fb-share-button {
     margin-right: 10px;
     display: inline-block;
     float: right;

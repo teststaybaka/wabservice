@@ -29,6 +29,7 @@ env.globals = {
     'uri_for': webapp2.uri_for,
 }
 
+
 def gen_error_page(response, message=None, redirect_url=None, exception=None):
     template = env.get_template('template/error.html')
 
@@ -65,8 +66,8 @@ class BaseHandler(webapp2.RequestHandler):
 
     def refresh_login_status(self):
         cookie = facebook.get_user_from_cookie(self.request.cookies,
-                                                   FACEBOOK_APP_ID,
-                                                   FACEBOOK_APP_SECRET)
+                                               FACEBOOK_APP_ID,
+                                               FACEBOOK_APP_SECRET)
         logging.info(cookie)
         if cookie:
             user = User.get_by_key_name(cookie["uid"])
@@ -181,9 +182,3 @@ class Home(BaseHandler):
             'keyword': keyword}
         template = env.get_template('template/index.html')
         self.response.write(template.render(context))
-
-
-class Discussions(webapp2.RequestHandler):
-    def get(self, challenge_id):
-        self.response.headers['Content-Type'] = 'text/plain'
-        self.response.write('Hello, World!')

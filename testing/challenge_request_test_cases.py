@@ -26,7 +26,7 @@ class ChallengeRequestTestCases(BaseTestCase):
             end_status = RequestStatus.REJECTED
             test_headers = self.set_session_user(self.test_user_2)
         elif action == 'confirm':
-            end_string = "Congratulation! You have completed this challenge."
+            end_string = ""
             start_status = RequestStatus.VERIFYING
             end_status = RequestStatus.VERIFIED
         elif action == 'retry':

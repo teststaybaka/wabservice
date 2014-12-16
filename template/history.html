@@ -1,0 +1,63 @@
+{% extends "template/base.html" %}
+{% block head %}
+{{ super() }}
+<link href="/static/history.css" rel="stylesheet" type="text/css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"type="text/javascript" ></script>
+<script src="/static/history.js" language="JavaScript" type="text/javascript"></script>
+{% endblock %}
+
+{% block body %}
+<div class="container" id="body-container">
+    <div id="category-list">
+        <ul>
+            <li class="category" category="all">All History</li>
+            <li class="category" category="created">Created Challenges</li>
+            <li class="category" category="inviting">Invitations Sent</li>
+            <li class="category" category="invited">Invitations Received</li>
+        </ul>
+    </div>
+
+    <div id="history-dynamic-column">
+        {% for entry in invited_list %}
+        <div class="per-challenge">
+            {% if entry.status == 'accepted' %}
+            You have accepted the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}
+            {% elif entry.status == 'rejected' %}
+            You have rejected the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}
+            {% elif entry.status == 'pending' %}
+            You are invited to the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}
+            {% elif entry.status == 'verifying' %}
+            You have submitted the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}
+            {% else %}
+            You have completed the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> invited by {{ entry.inviter.name }}, Congratulations!
+            {% if entry.status == 'verified' %}
+            You have a chance to invite your friends to the challenge!
+            {% endif %}
+            {% endif %}
+            <!-- <span class="challenge-summary">{{ entry.get('status') }}</span> -->
+        </div>
+        {% endfor %}
+        {% for entry in inviting_list %}
+        <div class="per-challenge">
+            {% if entry.status == 'accepted' %}
+            {{ entry.invitee.name }} has accepted your invitation to the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a>
+            {% elif entry.status == 'rejected' %}
+            {{ entry.invitee.name }} has rejected your invitation to the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a>
+            {% elif entry.status == 'pending' %}
+            You invited {{ entry.invitee.name }} to the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a>
+            {% elif entry.status == 'verifying' %}
+            {{ entry.invitee.name }} has submitted the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a> Take a look!
+            {% else %}
+            {{ entry.invitee.name }} has completed the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a>
+            {% endif %}
+            <!-- <span class="challenge-summary">{{ entry.get('status') }}</span> -->
+        </div>
+        {% endfor %}
+        {% for entry in created_list %}
+        <div class="per-challenge">
+            You created the challenge <a href="{{ uri_for('detail', challenge_id=entry.get('challenge_id')) }}">{{ entry.challenge_title }}</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
